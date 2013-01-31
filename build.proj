@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="BuildAndPackage" InitialTargets="CheckForBuildTools" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Target Name="CheckForBuildTools" Condition="!Exists('packages\Digillect.Build.Tools.1.1.1\tools\Build.targets')">
+		<Error Text="Project requires Digillect.Build.Tools package to run."/>
+	</Target>
+	
+	<Import Project="packages\Digillect.Build.Tools.1.1.1\tools\Build.targets" Condition="Exists('packages\Digillect.Build.Tools.1.1.1\tools\Build.targets')"/>
+
+	<PropertyGroup>
+		<Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="src\Digillect.Mvvm.WindowsPhone\Digillect.Mvvm.WindowsPhone (wp71).csproj"/>
+		<ProjectReference Include="src\Digillect.Mvvm.WindowsPhone\Digillect.Mvvm.WindowsPhone (wp80).csproj"/>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackagingProjectReference Include="Digillect.Mvvm.WindowsPhone.proj"/>
+	</ItemGroup>
+
+	<Target Name="UpdateAssemblyVersion" Condition="'$(BuildNumber)' != ''">
+		<FileUpdate Files="src\AssemblySharedInfo.cs" Regex='BuildNumber = "\d+"' ReplacementText='BuildNumber = "$(BuildNumber)"'/>
+	</Target>
+
+	<Target Name="BeforeBuildOrRebuild" DependsOnTargets="UpdateAssemblyVersion"/>
+
+	<Target Name="BuildAndPackage" DependsOnTargets="Build;Package"/>
+</Project>
