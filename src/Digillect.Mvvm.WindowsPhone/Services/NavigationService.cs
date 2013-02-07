@@ -101,6 +101,21 @@ namespace Digillect.Mvvm.Services
 			{
 			}
 		}
+
+		public void GoBack()
+		{
+			_navigationServiceContext.GoBack();
+		}
+
+		public void GoBack( string viewName )
+		{
+			if( viewName == null )
+			{
+				throw new ArgumentNullException( "viewName" );
+			}
+
+			_navigationServiceContext.GoBack( viewName );
+		}
 		#endregion
 
 		#region Encode/Decode values

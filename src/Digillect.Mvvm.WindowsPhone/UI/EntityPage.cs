@@ -22,7 +22,7 @@ namespace Digillect.Mvvm.UI
 		/// </summary>
 		protected override void InitialLoadData()
 		{
-			ViewModel.Load( Parameters.Get<TId>( "Id" ) );
+			ViewModel.Load( ViewParameters.Get<TId>( "Id" ) );
 		}
 		#endregion
 
@@ -39,7 +39,7 @@ namespace Digillect.Mvvm.UI
 
 			if( queryString.TryGetValue( "Id", out stringId ) )
 			{
-				Parameters.Add( "Id", (TId) Services.NavigationService.DecodeValue( stringId, typeof( TId ) ) );
+				ViewParameters.Add( "Id", (TId) Services.NavigationService.DecodeValue( stringId, typeof( TId ) ) );
 
 				queryString.Remove( "Id" );
 			}

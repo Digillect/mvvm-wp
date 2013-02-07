@@ -1,40 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Markup;
-
-using Digillect.Mvvm.Services;
+using System.Windows.Navigation;
 
 using Autofac;
+
+using Digillect.Mvvm.Services;
 
 namespace Digillect.Mvvm.UI
 {
 	/// <summary>
-	/// Base for application pages.
+	///     Base for application pages.
 	/// </summary>
 	public class PhoneApplicationPage : Microsoft.Phone.Controls.PhoneApplicationPage
 	{
 		private const string RessurectionMark = "__mark$mark__";
 
-		private ILifetimeScope scope;
-		private readonly Parameters _parameters = new Parameters();
+		private ILifetimeScope _scope;
+		private readonly Parameters _viewParameters = new Parameters();
 
 		#region Constructor
 		/// <summary>
-		/// Initializes a new instance of the <see cref="PhoneApplicationPage"/> class.
+		///     Initializes a new instance of the <see cref="PhoneApplicationPage" /> class.
 		/// </summary>
 		public PhoneApplicationPage()
 		{
-			this.Language = XmlLanguage.GetLanguage( Thread.CurrentThread.CurrentCulture.Name );
+			Language = XmlLanguage.GetLanguage( Thread.CurrentThread.CurrentCulture.Name );
 		}
 		#endregion
 
 		#region Public Properties
 		/// <summary>
-		/// Gets the current application.
+		///     Gets the current application.
 		/// </summary>
 		public PhoneApplication CurrentApplication
 		{
@@ -42,50 +43,54 @@ namespace Digillect.Mvvm.UI
 		}
 
 		/// <summary>
-		/// Gets the IoC lifetime scope.
+		///     Gets the IoC lifetime scope.
 		/// </summary>
 		public ILifetimeScope Scope
 		{
-			get { return this.scope; }
+			get { return _scope; }
 		}
 
 		/// <summary>
-		/// Gets the page parameters.
+		///     Gets the page parameters.
 		/// </summary>
 		/// <value>
-		/// The parameters.
+		///     The parameters.
 		/// </value>
 		[CLSCompliant( false )]
-		public Parameters Parameters
+		public Parameters ViewParameters
 		{
-			get { return _parameters; }
+			get { return _viewParameters; }
 		}
 		#endregion
 
 		#region Navigation handling
 		/// <summary>
-		/// Called when a page becomes the active page in a frame.
+		///     Called when a page becomes the active page in a frame.
 		/// </summary>
 		/// <param name="e">An object that contains the event data.</param>
-		protected override void OnNavigatedTo( System.Windows.Navigation.NavigationEventArgs e )
+		protected override void OnNavigatedTo( NavigationEventArgs e )
 		{
 			base.OnNavigatedTo( e );
 
-			if( this.scope == null )
+			if( _scope == null )
 			{
-				this.scope = CurrentApplication.Scope.BeginLifetimeScope();
+				_scope = CurrentApplication.Scope.BeginLifetimeScope();
 
 				ParseParameters();
-				this.DataContext = CreateDataContext();
+				DataContext = CreateDataContext();
 
 				if( State.ContainsKey( RessurectionMark ) )
+				{
 					OnPageResurrected();
+				}
 				else
+				{
 					OnPageCreated();
+				}
 
 				IPageDecorationService pageDecorationService = null;
 
-				if( this.Scope.TryResolve<IPageDecorationService>( out pageDecorationService ) )
+				if( Scope.TryResolve( out pageDecorationService ) )
 				{
 					pageDecorationService.AddDecoration( this );
 				}
@@ -93,26 +98,26 @@ namespace Digillect.Mvvm.UI
 		}
 
 		/// <summary>
-		/// Called when a page is no longer the active page in a frame.
+		///     Called when a page is no longer the active page in a frame.
 		/// </summary>
 		/// <param name="e">An object that contains the event data.</param>
-		protected override void OnNavigatedFrom( System.Windows.Navigation.NavigationEventArgs e )
+		protected override void OnNavigatedFrom( NavigationEventArgs e )
 		{
-			if( e.NavigationMode == System.Windows.Navigation.NavigationMode.Back )
+			if( e.NavigationMode == NavigationMode.Back )
 			{
 				OnPageDestroyed();
 
-				if( this.scope != null )
+				if( _scope != null )
 				{
 					IPageDecorationService pageDecorationService = null;
 
-					if( this.Scope.TryResolve<IPageDecorationService>( out pageDecorationService ) )
+					if( Scope.TryResolve( out pageDecorationService ) )
 					{
 						pageDecorationService.RemoveDecoration( this );
 					}
 
-					this.scope.Dispose();
-					this.scope = null;
+					_scope.Dispose();
+					_scope = null;
 				}
 			}
 			else
@@ -127,47 +132,49 @@ namespace Digillect.Mvvm.UI
 
 		#region Page Lifecycle handlers
 		/// <summary>
-		/// Creates data context to be set for the page. Override to create your own data context.
+		///     Creates data context to be set for the page. Override to create your own data context.
 		/// </summary>
-		/// <returns>Data context that will be set to <see cref="System.Windows.FrameworkElement.DataContext"/> property.</returns>
+		/// <returns>
+		///     Data context that will be set to <see cref="System.Windows.FrameworkElement.DataContext" /> property.
+		/// </returns>
 		protected virtual PageDataContext CreateDataContext()
 		{
-			return this.scope.Resolve<PageDataContext.Factory>()( this );
+			return _scope.Resolve<PageDataContext.Factory>()( this );
 		}
 
 		/// <summary>
-		/// This method is called when page is visited for the very first time. You should perform
-		/// initialization and create one-time initialized resources here.
+		///     This method is called when page is visited for the very first time. You should perform
+		///     initialization and create one-time initialized resources here.
 		/// </summary>
 		protected virtual void OnPageCreated()
 		{
 		}
 
 		/// <summary>
-		/// This method is called when page is returned from being Dormant. All resources are preserved,
-		/// so most of the time you should just ignore this event.
+		///     This method is called when page is returned from being Dormant. All resources are preserved,
+		///     so most of the time you should just ignore this event.
 		/// </summary>
 		protected virtual void OnPageAwaken()
 		{
 		}
 
 		/// <summary>
-		/// This method is called when page navigated after application has been resurrected from thombstombed state.
-		/// Use <see cref="Microsoft.Phone.Controls.PhoneApplicationPage.State"/> property to restore state.
+		///     This method is called when page navigated after application has been resurrected from thombstombed state.
+		///     Use <see cref="Microsoft.Phone.Controls.PhoneApplicationPage.State" /> property to restore state.
 		/// </summary>
 		protected virtual void OnPageResurrected()
 		{
 		}
 
 		/// <summary>
-		/// This method is called when navigation outside of the page occures.
+		///     This method is called when navigation outside of the page occures.
 		/// </summary>
 		protected virtual void OnPageAsleep()
 		{
 		}
 
 		/// <summary>
-		/// This method is called when page is being destroyed, usually after user presses Back key.
+		///     This method is called when page is being destroyed, usually after user presses Back key.
 		/// </summary>
 		protected virtual void OnPageDestroyed()
 		{
@@ -178,17 +185,19 @@ namespace Digillect.Mvvm.UI
 		private static bool? isInDesignMode;
 
 		/// <summary>
-		/// Gets a value indicating whether this page is in design mode.
+		///     Gets a value indicating whether this page is in design mode.
 		/// </summary>
 		/// <value>
-		/// 	<c>true</c> if this page is in design mode; otherwise, <c>false</c>.
+		///     <c>true</c> if this page is in design mode; otherwise, <c>false</c>.
 		/// </value>
 		public static bool IsInDesignMode
 		{
 			get
 			{
 				if( !isInDesignMode.HasValue )
-					isInDesignMode = System.ComponentModel.DesignerProperties.IsInDesignTool;
+				{
+					isInDesignMode = DesignerProperties.IsInDesignTool;
+				}
 
 				return isInDesignMode.Value;
 			}
@@ -204,7 +213,7 @@ namespace Digillect.Mvvm.UI
 		}
 
 		/// <summary>
-		/// Parses the parameters.
+		///     Parses the parameters.
 		/// </summary>
 		/// <param name="queryString">The query string.</param>
 		/// <exception cref="System.ArgumentException"></exception>
@@ -219,11 +228,11 @@ namespace Digillect.Mvvm.UI
 
 				if( queryString.TryGetValue( attribute.ParameterName, out stringValue ) )
 				{
-					parameterValue = Digillect.Mvvm.Services.NavigationService.DecodeValue( stringValue, attribute.ParameterType );
+					parameterValue = Services.NavigationService.DecodeValue( stringValue, attribute.ParameterType );
 
 					if( parameterValue != null )
 					{
-						_parameters.Add( attribute.ParameterName, parameterValue );
+						_viewParameters.Add( attribute.ParameterName, parameterValue );
 					}
 
 					queryString.Remove( attribute.ParameterName );

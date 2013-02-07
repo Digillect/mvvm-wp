@@ -17,6 +17,16 @@ namespace Digillect.Mvvm.Services
 		void Navigate( Uri uri );
 
 		/// <summary>
+		/// Performs navigation to the previous page.
+		/// </summary>
+		void GoBack();
+		/// <summary>
+		/// Performs navigation to the previous page named <paramref name="viewName"/>, if any.
+		/// </summary>
+		/// <param name="viewName">Name of the view to return to.</param>
+		void GoBack( string viewName );
+
+		/// <summary>
 		/// Gets the main assembly containing views.
 		/// </summary>
 		/// <returns></returns>
