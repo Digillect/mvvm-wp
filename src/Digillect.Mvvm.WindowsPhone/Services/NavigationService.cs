@@ -1,25 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics.Contracts;
 using System.Globalization;
+using System.Linq;
+using System.Reflection;
+
+using Autofac;
 
 using Digillect.Mvvm.UI;
-using System.Diagnostics.Contracts;
-using Autofac;
 
 namespace Digillect.Mvvm.Services
 {
 	/// <summary>
-	/// Windows phone implementation of <see cref="Digillect.Mvvm.Services.INavigationService"/>
+	///     Windows phone implementation of <see cref="Digillect.Mvvm.Services.INavigationService" />
 	/// </summary>
 	public sealed class NavigationService : INavigationService, IStartable
 	{
-		private readonly Dictionary<string, string> _views = new Dictionary<string, string>( StringComparer.InvariantCultureIgnoreCase );
 		private readonly INavigationServiceContext _navigationServiceContext;
+		private readonly Dictionary<string, string> _views = new Dictionary<string, string>( StringComparer.InvariantCultureIgnoreCase );
 
 		#region Constructors/Disposer
 		/// <summary>
-		/// Initializes a new instance of the <see cref="NavigationService" /> class.
+		///     Initializes a new instance of the <see cref="NavigationService" /> class.
 		/// </summary>
 		/// <param name="navigationServiceContext">The navigation service context.</param>
 		public NavigationService( INavigationServiceContext navigationServiceContext )
@@ -30,18 +32,18 @@ namespace Digillect.Mvvm.Services
 
 		#region Start
 		/// <summary>
-		/// Perform once-off startup processing.
+		///     Perform once-off startup processing.
 		/// </summary>
 		public void Start()
 		{
-			var assemblyToScan = _navigationServiceContext.GetMainAssemblyContainingViews();
-			var rootNamespace = _navigationServiceContext.GetRootNamespace();
+			Assembly assemblyToScan = _navigationServiceContext.GetMainAssemblyContainingViews();
+			string rootNamespace = _navigationServiceContext.GetRootNamespace();
 
-			foreach( Type type in assemblyToScan.GetTypes().Where( t => !t.IsAbstract && t.GetCustomAttributes( typeof( ViewAttribute ), false ).Count() > 0 ) )
+			foreach( Type type in assemblyToScan.GetTypes().Where( t => !t.IsAbstract && t.GetCustomAttributes( typeof( ViewAttribute ), false ).Any() ) )
 			{
-				var typeName = type.FullName.StartsWith( rootNamespace ) ? type.FullName.Substring( rootNamespace.Length + 1 ) : type.FullName;
-				var viewAttribute = type.GetCustomAttributes( typeof( ViewAttribute ), false ).Cast<ViewAttribute>().FirstOrDefault();
-				var viewName = viewAttribute.Name ?? type.Name;
+				string typeName = type.FullName.StartsWith( rootNamespace ) ? type.FullName.Substring( rootNamespace.Length + 1 ) : type.FullName;
+				ViewAttribute viewAttribute = type.GetCustomAttributes( typeof( ViewAttribute ), false ).Cast<ViewAttribute>().First();
+				string viewName = viewAttribute.Name ?? type.Name;
 
 				if( viewAttribute.Path != null )
 				{
@@ -57,7 +59,7 @@ namespace Digillect.Mvvm.Services
 
 		#region Navigate
 		/// <summary>
-		/// Navigates to the specified view.
+		///     Navigates to the specified view.
 		/// </summary>
 		/// <param name="viewName">Name of the view.</param>
 		public void Navigate( string viewName )
@@ -68,7 +70,7 @@ namespace Digillect.Mvvm.Services
 		}
 
 		/// <summary>
-		/// Navigates to the specified view with parameters.
+		///     Navigates to the specified view with parameters.
 		/// </summary>
 		/// <param name="viewName">Name of the view.</param>
 		/// <param name="parameters">The parameters.</param>
@@ -84,7 +86,7 @@ namespace Digillect.Mvvm.Services
 
 			Contract.EndContractBlock();
 
-			var path = (string) null;
+			string path;
 
 			if( !_views.TryGetValue( viewName, out path ) )
 			{
@@ -122,7 +124,7 @@ namespace Digillect.Mvvm.Services
 		private const string DateTimeFormatString = "yyyy-MM-ddThh:mm:sszzz";
 
 		/// <summary>
-		/// Encodes the value to string representation.
+		///     Encodes the value to string representation.
 		/// </summary>
 		/// <param name="value">The value.</param>
 		/// <returns>Encoded value.</returns>
@@ -134,7 +136,7 @@ namespace Digillect.Mvvm.Services
 			}
 
 			var valueType = value.GetType();
-			string formattedValue = null;
+			string formattedValue;
 
 			if( valueType == typeof( DateTime ) )
 			{
@@ -150,17 +152,21 @@ namespace Digillect.Mvvm.Services
 
 					formattedValue = dtValue.ToString( DateTimeFormatString, CultureInfo.InvariantCulture );
 				}
-
+				else if( valueType == typeof( XKey ) )
+				{
+					formattedValue = XKeySerializer.Serialize( (XKey) value );
+				}
 				else
 				{
 					formattedValue = (string) Convert.ChangeType( value, typeof( string ), CultureInfo.InvariantCulture );
 				}
 			}
+
 			return Uri.EscapeDataString( formattedValue );
 		}
 
 		/// <summary>
-		/// Decodes the value.
+		///     Decodes the value.
 		/// </summary>
 		/// <param name="stringValue">String representation of the value.</param>
 		/// <param name="targetType">Target value type.</param>
@@ -183,17 +189,18 @@ namespace Digillect.Mvvm.Services
 				{
 					return DateTime.ParseExact( stringValue, DateTimeFormatString, CultureInfo.InvariantCulture );
 				}
-				else
+				
+				if( targetType == typeof( DateTimeOffset ) )
 				{
-					if( targetType == typeof( DateTimeOffset ) )
-					{
-						return DateTimeOffset.ParseExact( stringValue, DateTimeFormatString, CultureInfo.InvariantCulture );
-					}
-					else
-					{
-						return Convert.ChangeType( stringValue, targetType, CultureInfo.InvariantCulture );
-					}
+					return DateTimeOffset.ParseExact( stringValue, DateTimeFormatString, CultureInfo.InvariantCulture );
 				}
+					
+				if( targetType == typeof( XKey ) )
+				{
+					return XKeySerializer.Deserialize( stringValue );
+				}
+					
+				return Convert.ChangeType( stringValue, targetType, CultureInfo.InvariantCulture );
 			}
 			catch( Exception )
 			{

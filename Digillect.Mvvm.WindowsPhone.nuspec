@@ -13,12 +13,12 @@
 		<tags>digillect mvvm windowsphone wp8 wp71 wp75</tags>
 		<dependencies>
 			<group targetFramework="wp71">
-				<dependency id="Digillect.ObjectModel" version="4.0.0-dev-00002"/>
-				<dependency id="Digillect.Mvvm" version="2.0.0-dev-00008"/>
+				<dependency id="Digillect.ObjectModel" version="4.0.0-dev-00004"/>
+				<dependency id="Digillect.Mvvm" version="2.0.0-dev-00010"/>
 			</group>
 			<group targetFramework="wp80">
-				<dependency id="Digillect.ObjectModel" version="4.0.0-dev-00002"/>
-				<dependency id="Digillect.Mvvm" version="2.0.0-dev-00008"/>
+				<dependency id="Digillect.ObjectModel" version="4.0.0-dev-00004"/>
+				<dependency id="Digillect.Mvvm" version="2.0.0-dev-00010"/>
 			</group>
 		</dependencies>
 		<references>
