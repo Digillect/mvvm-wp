@@ -104,11 +104,19 @@ namespace Digillect.Mvvm.Services
 			}
 		}
 
+		/// <summary>
+		/// Navigated to the previous view, if any.
+		/// </summary>
 		public void GoBack()
 		{
 			_navigationServiceContext.GoBack();
 		}
 
+		/// <summary>
+		/// Navigates back until encounters view named <paramref name="viewName" />.
+		/// </summary>
+		/// <param name="viewName">Name of the view.</param>
+		/// <exception cref="System.ArgumentNullException">viewName</exception>
 		public void GoBack( string viewName )
 		{
 			if( viewName == null )

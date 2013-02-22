@@ -3,7 +3,7 @@ using System;
 namespace Digillect.Mvvm.UI
 {
 	/// <summary>
-	/// Instances of this class are used by <see cref="Digillect.Mvvm.UI.ViewModelPage{TViewModel}"/> and descendants to provide data binding support.
+	/// Instances of this class are used by <see cref="ViewModelPage{TViewModel}"/> and descendants to provide data binding support.
 	/// </summary>
 	public class ViewModelPageDataContext : PageDataContext
 	{
@@ -11,19 +11,21 @@ namespace Digillect.Mvvm.UI
 		/// Factory that is used to create instances of context.
 		/// </summary>
 		/// <param name="page">The page.</param>
-		/// <param name="viewModel">The view model.</param>
+		/// <param name="viewModel">The page model.</param>
 		/// <returns>Instance of context.</returns>
 		[CLSCompliant( false )]
-		public new delegate ViewModelPageDataContext Factory( PhoneApplicationPage page, ViewModel viewModel );
+		public new delegate ViewModelPageDataContext Factory( Page page, ViewModel viewModel );
+
+		private bool _dataIsLoaded;
 
 		#region Constructors/Disposer
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ViewModelPageDataContext"/> class.
 		/// </summary>
 		/// <param name="page">The page used in this context.</param>
-		/// <param name="viewModel">The view model used in this context.</param>
+		/// <param name="viewModel">The page model used in this context.</param>
 		[CLSCompliant( false )]
-		public ViewModelPageDataContext( PhoneApplicationPage page, ViewModel viewModel )
+		public ViewModelPageDataContext( Page page, ViewModel viewModel )
 			: base( page )
 		{
 			if( page == null )
@@ -37,10 +39,22 @@ namespace Digillect.Mvvm.UI
 
 		#region Public Properties
 		/// <summary>
-		/// Gets the view model.
+		/// Gets the page model.
 		/// </summary>
 		[CLSCompliant( false )]
 		public ViewModel ViewModel { get; private set; }
+
+		/// <summary>
+		/// Gets or sets a value indicating whether ViewModel has loaded initial set of data.
+		/// </summary>
+		/// <value>
+		///   <c>true</c> if data is loaded; otherwise, <c>false</c>.
+		/// </value>
+		public bool DataIsLoaded
+		{
+			get { return _dataIsLoaded; }
+			set { SetProperty( ref _dataIsLoaded, value, "DataIsLoaded" ); }
+		}
 		#endregion
 	}
 }

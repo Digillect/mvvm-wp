@@ -17,7 +17,7 @@ namespace Digillect.Mvvm.Services
 		/// Performs decoration of the page.
 		/// </summary>
 		/// <param name="page">The page.</param>
-		public void AddDecoration( PhoneApplicationPage page )
+		public void AddDecoration( Page page )
 		{
 			if( page == null )
 				throw new ArgumentNullException( "page" );
@@ -30,7 +30,7 @@ namespace Digillect.Mvvm.Services
 		/// Optionally removes decoration from the page.
 		/// </summary>
 		/// <param name="page">The page.</param>
-		public void RemoveDecoration( PhoneApplicationPage page )
+		public void RemoveDecoration( Page page )
 		{
 			if( page == null )
 				throw new ArgumentNullException( "page" );

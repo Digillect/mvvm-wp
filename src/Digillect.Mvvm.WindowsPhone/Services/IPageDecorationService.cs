@@ -14,12 +14,12 @@ namespace Digillect.Mvvm.Services
 		/// Performs decoration of the page.
 		/// </summary>
 		/// <param name="page">The page.</param>
-		void AddDecoration( PhoneApplicationPage page );
+		void AddDecoration( Page page );
 		
 		/// <summary>
 		/// Optionally removes decoration from the page.
 		/// </summary>
 		/// <param name="page">The page.</param>
-		void RemoveDecoration( PhoneApplicationPage page );
+		void RemoveDecoration( Page page );
 	}
 }

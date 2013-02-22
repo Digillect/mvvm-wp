@@ -1,41 +1,41 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
-using System.Windows;
-
-using Digillect.Mvvm.Services;
 
 namespace Digillect.Mvvm.UI
 {
 	/// <summary>
-	/// Instances of this class are used by MVVM infrastructure to support data binding.
+	///     Instances of this class are used by MVVM infrastructure to support data binding.
 	/// </summary>
 	public class PageDataContext : ObservableObject, IDisposable
 	{
+		#region Delegates
 		/// <summary>
-		/// Factory that is used to create instances of context.
+		///     Factory that is used to create instances of context.
 		/// </summary>
 		/// <param name="page">The page.</param>
 		/// <returns>Instance of the context.</returns>
-		public delegate PageDataContext Factory( PhoneApplicationPage page );
+		public delegate PageDataContext Factory( Page page );
+		#endregion
 
-		private readonly PhoneApplicationPage page;
+		private readonly Page _page;
 
 		#region Constructors/Disposer
 		/// <summary>
-		/// Initializes a new instance of the <see cref="PageDataContext"/> class.
+		///     Initializes a new instance of the <see cref="PageDataContext" /> class.
 		/// </summary>
 		/// <param name="page">The page used in this context.</param>
-		public PageDataContext( PhoneApplicationPage page )
+		public PageDataContext( Page page )
 		{
 			if( page == null )
+			{
 				throw new ArgumentNullException( "page" );
+			}
 
-			this.page = page;
+			_page = page;
 		}
 
 		/// <summary>
-		/// Releases unmanaged resources and performs other cleanup operations before the
-		/// <see cref="PageDataContext"/> is reclaimed by garbage collection.
+		///     Releases unmanaged resources and performs other cleanup operations before the
+		///     <see cref="PageDataContext" /> is reclaimed by garbage collection.
 		/// </summary>
 		~PageDataContext()
 		{
@@ -43,7 +43,7 @@ namespace Digillect.Mvvm.UI
 		}
 
 		/// <summary>
-		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+		///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
 		/// </summary>
 		public void Dispose()
 		{
@@ -52,9 +52,11 @@ namespace Digillect.Mvvm.UI
 		}
 
 		/// <summary>
-		/// Releases unmanaged and - optionally - managed resources
+		///     Releases unmanaged and - optionally - managed resources
 		/// </summary>
-		/// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+		/// <param name="disposing">
+		///     <c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.
+		/// </param>
 		protected virtual void Dispose( bool disposing )
 		{
 		}
@@ -62,11 +64,11 @@ namespace Digillect.Mvvm.UI
 
 		#region Public Properties
 		/// <summary>
-		/// Gets the page.
+		///     Gets the page.
 		/// </summary>
-		public PhoneApplicationPage Page
+		public Page Page
 		{
-			get { return this.page; }
+			get { return _page; }
 		}
 		#endregion
 	}

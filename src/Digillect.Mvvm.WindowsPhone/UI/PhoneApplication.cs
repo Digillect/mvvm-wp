@@ -1,49 +1,44 @@
-﻿using System;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Navigation;
-
-using Microsoft.Phone.Controls;
 
 using Autofac;
 
 using Digillect.Mvvm.Services;
 
+using Microsoft.Phone.Controls;
+using Microsoft.Phone.Shell;
+
 namespace Digillect.Mvvm.UI
 {
 	/// <summary>
-	/// Base class for Windows Phone 7 applications.
+	///     Base class for Windows Phone applications.
 	/// </summary>
 	public abstract class PhoneApplication : Application
 	{
-		/// <summary>
-		/// Gets the application root frame.
-		/// </summary>
-		public PhoneApplicationFrame RootFrame { get; private set; }
-		/// <summary>
-		/// Gets the IoC container.
-		/// </summary>
-		public ILifetimeScope Scope { get; private set; }
+		private bool _phoneApplicationInitialized;
 
 		#region Constructors/Disposer
 		/// <summary>
-		/// Initializes a new instance of the <see cref="PhoneApplication"/> class.
+		///     Initializes a new instance of the <see cref="PhoneApplication" /> class.
 		/// </summary>
-		[System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors" )]
-		public PhoneApplication()
+		[SuppressMessage( "Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors" )]
+		protected PhoneApplication()
 		{
 			InitializeIoC();
+			InitializeApplicationService();
 			InitializePhoneApplication();
 		}
 		#endregion
 
 		#region Phone application initialization
-		private bool phoneApplicationInitialized;
-
 		// Do not add any additional code to this method
 		private void InitializePhoneApplication()
 		{
-			if( phoneApplicationInitialized )
+			if( _phoneApplicationInitialized )
+			{
 				return;
+			}
 
 			// Create the frame but don't set it as RootVisual yet; this allows the splash
 			// screen to remain active until the application is ready to render.
@@ -54,25 +49,96 @@ namespace Digillect.Mvvm.UI
 			RootFrame.NavigationFailed += RootFrame_NavigationFailed;
 
 			// Ensure we don't initialize again
-			phoneApplicationInitialized = true;
+			_phoneApplicationInitialized = true;
 		}
 
 		private void CompleteInitializePhoneApplication( object sender, NavigationEventArgs e )
 		{
-			if( RootVisual != RootFrame )
-				RootVisual = RootFrame;
+			RootVisual = RootFrame;
 
 			RootFrame.Navigated -= CompleteInitializePhoneApplication;
+
+#if WINDOWS_PHONE_7
+			if( e.NavigationMode == NavigationMode.New || e.NavigationMode == NavigationMode.Refresh )
+#else
+			if( e.NavigationMode == NavigationMode.Reset )
+#endif
+			{
+				while( RootFrame.RemoveBackEntry() != null )
+				{
+				}
+			}
 		}
 
 		/// <summary>
-		/// Creates application root frame. By default creates instance of <see cref="Microsoft.Phone.Controls.PhoneApplicationFrame"/>, override
-		/// to create instance of other type.
+		///     Creates application root frame. By default creates instance of
+		///     <see
+		///         cref="Microsoft.Phone.Controls.PhoneApplicationFrame" />
+		///     , override
+		///     to create instance of other type.
 		/// </summary>
 		/// <returns>application frame.</returns>
 		protected virtual PhoneApplicationFrame CreateRootFrame()
 		{
 			return new PhoneApplicationFrame();
+		}
+		#endregion
+
+		#region Application Lifetime
+		private void InitializeApplicationService()
+		{
+			var service = CreateApplicationService();
+
+			if( service != null )
+			{
+				service.Launching += ( o, e ) => HandleApplicationLaunching( e );
+				service.Activated += ( o, e ) => HandleApplicationActivated( e );
+				service.Deactivated += ( o, e ) => HandleApplicationDeactivated( e );
+				service.Closing += ( o, e ) => HandleApplicationClosing( e );
+
+				ApplicationLifetimeObjects.Add( service );
+			}
+		}
+
+		/// <summary>
+		/// Creates the instance of application service.
+		/// </summary>
+		/// <returns>New instance of phone application service or <c>null</c> to omit application service registration.</returns>
+		protected virtual PhoneApplicationService CreateApplicationService()
+		{
+			return new PhoneApplicationService();
+		}
+
+		/// <summary>
+		/// Handles the application launching.
+		/// </summary>
+		/// <param name="e">The <see cref="LaunchingEventArgs" /> instance containing the event data.</param>
+		protected virtual void HandleApplicationLaunching( LaunchingEventArgs e )
+		{
+		}
+
+		/// <summary>
+		/// Handles the application activated.
+		/// </summary>
+		/// <param name="e">The <see cref="ActivatedEventArgs" /> instance containing the event data.</param>
+		protected virtual void HandleApplicationActivated( ActivatedEventArgs e )
+		{
+		}
+
+		/// <summary>
+		/// Handles the application deactivated.
+		/// </summary>
+		/// <param name="e">The <see cref="DeactivatedEventArgs" /> instance containing the event data.</param>
+		protected virtual void HandleApplicationDeactivated( DeactivatedEventArgs e )
+		{
+		}
+
+		/// <summary>
+		/// Handles the application closing.
+		/// </summary>
+		/// <param name="e">The <see cref="ClosingEventArgs" /> instance containing the event data.</param>
+		protected virtual void HandleApplicationClosing( ClosingEventArgs e )
+		{
 		}
 		#endregion
 
@@ -83,10 +149,14 @@ namespace Digillect.Mvvm.UI
 		}
 
 		/// <summary>
-		/// Executes when navigation has been failed. Override to provide your own handling.
+		///     Executes when navigation has been failed. Override to provide your own handling.
 		/// </summary>
-		/// <param name="e">The <see cref="System.Windows.Navigation.NavigationFailedEventArgs"/> instance containing the event data.</param>
-		protected virtual void HandleNavigationFailed( NavigationFailedEventArgs e ) { }
+		/// <param name="e">
+		///     The <see cref="System.Windows.Navigation.NavigationFailedEventArgs" /> instance containing the event data.
+		/// </param>
+		protected virtual void HandleNavigationFailed( NavigationFailedEventArgs e )
+		{
+		}
 		#endregion
 
 		#region IoC Support
@@ -96,17 +166,29 @@ namespace Digillect.Mvvm.UI
 
 			RegisterServices( builder );
 
-			this.Scope = builder.Build();
+			Scope = builder.Build();
 		}
 
 		/// <summary>
-		/// Called to register services in IoC container.
+		///     Called to register services in IoC container.
 		/// </summary>
 		/// <param name="builder">The builder.</param>
 		protected virtual void RegisterServices( ContainerBuilder builder )
 		{
 			builder.RegisterModule<WindowsPhoneModule>();
 		}
+		#endregion
+
+		#region Public Properties
+		/// <summary>
+		///     Gets the application root frame.
+		/// </summary>
+		public PhoneApplicationFrame RootFrame { get; private set; }
+
+		/// <summary>
+		///     Gets the IoC container.
+		/// </summary>
+		public ILifetimeScope Scope { get; private set; }
 		#endregion
 	}
 }

@@ -16,7 +16,7 @@ namespace Digillect.Mvvm.UI
 	/// <summary>
 	///     Base for application pages.
 	/// </summary>
-	public class PhoneApplicationPage : Microsoft.Phone.Controls.PhoneApplicationPage
+	public class Page : Microsoft.Phone.Controls.PhoneApplicationPage
 	{
 		private const string RessurectionMark = "__mark$mark__";
 
@@ -25,9 +25,9 @@ namespace Digillect.Mvvm.UI
 
 		#region Constructor
 		/// <summary>
-		///     Initializes a new instance of the <see cref="PhoneApplicationPage" /> class.
+		///     Initializes a new instance of the <see cref="Page" /> class.
 		/// </summary>
-		public PhoneApplicationPage()
+		public Page()
 		{
 			Language = XmlLanguage.GetLanguage( Thread.CurrentThread.CurrentCulture.Name );
 		}
@@ -94,6 +94,10 @@ namespace Digillect.Mvvm.UI
 				{
 					pageDecorationService.AddDecoration( this );
 				}
+			}
+			else
+			{
+				OnPageAwaken();
 			}
 		}
 
