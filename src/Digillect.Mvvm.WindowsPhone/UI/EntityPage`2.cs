@@ -1,24 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Digillect.Mvvm.UI
 {
 	/// <summary>
-	/// Provides infrastructure for page backed up with <see cref="Digillect.Mvvm.EntityViewModel{TId,TModel}"/>.
+	/// Provides infrastructure for page backed up with <see cref="Digillect.Mvvm.EntityViewModel{TModel}" />.
 	/// </summary>
 	/// <typeparam name="TEntity">The type of the entity.</typeparam>
 	/// <typeparam name="TViewModel">The type of the page model.</typeparam>
-	/// <remarks>Instance of this class performs lookup of the query string upon navigation to find and extract parameter with
-	/// name <c>Id</c> that is used as entity id for page model. If that parameter is not found then <see cref="System.ArgumentException"/> will be thrown.</remarks>
+	/// <remarks>
+	/// Instance of this class performs lookup of the query string upon navigation to find and extract parameter with
+	/// name <c>Id</c> that is used as entity id for page model. If that parameter is not found then <see cref="System.ArgumentException" /> will be thrown.
+	/// </remarks>
 	public class EntityPage<TEntity, TViewModel> : ViewModelPage<TViewModel>
 		where TEntity: XObject
 		where TViewModel: EntityViewModel<TEntity>
 	{
 		/// <summary>
-		/// Initials the load data.
+		/// This method is called to create data loading session.
 		/// </summary>
-		protected override Task<Session> LoadData( DataLoadReason reason )
+		/// <param name="reason">The reason to load page data.</param>
+		/// <returns>Session that should be used to load page data.</returns>
+		protected override Session LoadData( DataLoadReason reason )
 		{
 			return ViewModel.Load( ViewParameters.Get<XKey>( "Key" ) );
 		}
@@ -32,7 +35,7 @@ namespace Digillect.Mvvm.UI
 		{
 			base.ParseParameters( queryString );
 
-			string stringKey = null;
+			string stringKey;
 
 			if( queryString.TryGetValue( "Key", out stringKey ) )
 			{

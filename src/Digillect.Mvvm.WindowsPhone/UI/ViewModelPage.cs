@@ -13,6 +13,7 @@ namespace Digillect.Mvvm.UI
 		where TViewModel : ViewModel
 	{
 		private TViewModel _viewModel;
+		private Session _session;
 
 		#region Public Properties
 		/// <summary>
@@ -68,6 +69,23 @@ namespace Digillect.Mvvm.UI
 		}
 
 		/// <summary>
+		/// This method is called when navigation outside of the page occures.
+		/// </summary>
+		protected override void OnPageAsleep()
+		{
+			base.OnPageAsleep();
+
+			var session = _session;
+
+			_session = null;
+
+			if( session != null )
+			{
+				session.Cancel();
+			}
+		}
+
+		/// <summary>
 		///     Creates the page model.
 		/// </summary>
 		/// <returns>page model for this page.</returns>
@@ -105,13 +123,13 @@ namespace Digillect.Mvvm.UI
 
 			if( reason != DataLoadReason.Awakening || !context.DataIsLoaded )
 			{
-				var task = LoadData( reason );
+				var session = _session = LoadData( reason );
 
-				if( task != null )
+				if( session != null )
 				{
 					try
 					{
-						var session = await task;
+						await _viewModel.Load( session );
 
 						OnLoadDataComplete( session );
 
@@ -119,16 +137,18 @@ namespace Digillect.Mvvm.UI
 					}
 					catch( Exception ex )
 					{
-						OnLoadDataFailed( ex );
+						OnLoadDataFailed( session, ex );
 					}
 				}
 			}
 		}
 
 		/// <summary>
-		///     This method is called to create data loading task.
+		/// This method is called to create data loading session.
 		/// </summary>
-		protected virtual Task<Session> LoadData( DataLoadReason reason )
+		/// <param name="reason">The reason to load page data.</param>
+		/// <returns>Session that should be used to load page data.</returns>
+		protected virtual Session LoadData( DataLoadReason reason )
 		{
 			return null;
 		}
@@ -144,8 +164,9 @@ namespace Digillect.Mvvm.UI
 		/// <summary>
 		/// Called when data loading process fails.
 		/// </summary>
+		/// <param name="session">Session that failed to load.</param>
 		/// <param name="ex">Reason of the failure.</param>
-		protected virtual void OnLoadDataFailed( Exception ex )
+		protected virtual void OnLoadDataFailed( Session session, Exception ex )
 		{
 		}
 		#endregion

@@ -17,6 +17,7 @@ namespace Digillect.Mvvm.UI
 	public abstract class PhoneApplication : Application
 	{
 		private bool _phoneApplicationInitialized;
+		private PhoneApplicationService _phoneApplicationService;
 
 		#region Constructors/Disposer
 		/// <summary>
@@ -87,16 +88,16 @@ namespace Digillect.Mvvm.UI
 		#region Application Lifetime
 		private void InitializeApplicationService()
 		{
-			var service = CreateApplicationService();
+			_phoneApplicationService = CreateApplicationService();
 
-			if( service != null )
+			if( _phoneApplicationService != null )
 			{
-				service.Launching += ( o, e ) => HandleApplicationLaunching( e );
-				service.Activated += ( o, e ) => HandleApplicationActivated( e );
-				service.Deactivated += ( o, e ) => HandleApplicationDeactivated( e );
-				service.Closing += ( o, e ) => HandleApplicationClosing( e );
+				_phoneApplicationService.Launching += ( o, e ) => HandleApplicationLaunching( e );
+				_phoneApplicationService.Activated += ( o, e ) => HandleApplicationActivated( e );
+				_phoneApplicationService.Deactivated += ( o, e ) => HandleApplicationDeactivated( e );
+				_phoneApplicationService.Closing += ( o, e ) => HandleApplicationClosing( e );
 
-				ApplicationLifetimeObjects.Add( service );
+				ApplicationLifetimeObjects.Add( _phoneApplicationService );
 			}
 		}
 
@@ -189,6 +190,17 @@ namespace Digillect.Mvvm.UI
 		///     Gets the IoC container.
 		/// </summary>
 		public ILifetimeScope Scope { get; private set; }
+
+		/// <summary>
+		/// Gets the application service.
+		/// </summary>
+		/// <value>
+		/// The application service.
+		/// </value>
+		public PhoneApplicationService ApplicationService
+		{
+			get { return _phoneApplicationService; }
+		}
 		#endregion
 	}
 }

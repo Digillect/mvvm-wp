@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Digillect.Mvvm.UI
 {
@@ -18,11 +17,11 @@ namespace Digillect.Mvvm.UI
 		where TViewModel: EntityViewModel<TId, TEntity>
 	{
 		/// <summary>
-		/// Loads the data.
+		/// This method is called to create data loading session.
 		/// </summary>
-		/// <param name="reason">The reason.</param>
-		/// <returns></returns>
-		protected override Task<Session> LoadData( DataLoadReason reason )
+		/// <param name="reason">The reason to load page data.</param>
+		/// <returns>Session that should be used to load page data.</returns>
+		protected override Session LoadData( DataLoadReason reason )
 		{
 			return ViewModel.Load( ViewParameters.Get<TId>( "Id" ) );
 		}
@@ -36,7 +35,7 @@ namespace Digillect.Mvvm.UI
 		{
 			base.ParseParameters( queryString );
 
-			string stringId = null;
+			string stringId;
 
 			if( queryString.TryGetValue( "Id", out stringId ) )
 			{

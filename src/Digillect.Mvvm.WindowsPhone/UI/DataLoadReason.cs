@@ -21,7 +21,7 @@
 		Awakening,
 
 		/// <summary>
-		///     Load data after the manual call to <see cref="ViewViewModelPage{TViewModel}.LoadData" />
+		///     Load data after the manual call to <see cref="ViewModelPage{TViewModel}.LoadData()" />
 		/// </summary>
 		Manual,
 	}
