@@ -21,9 +21,9 @@ namespace Digillect.Mvvm.UI
 		/// </summary>
 		/// <param name="reason">The reason to load page data.</param>
 		/// <returns>Session that should be used to load page data.</returns>
-		protected override Session LoadData( DataLoadReason reason )
+		protected override Session CreateDataSession( DataLoadReason reason )
 		{
-			return ViewModel.Load( ViewParameters.Get<XKey>( "Key" ) );
+			return ViewModel.CreateSession( ViewParameters.Get<XKey>( "Key" ) );
 		}
 
 		/// <summary>

@@ -123,7 +123,12 @@ namespace Digillect.Mvvm.UI
 
 			if( reason != DataLoadReason.Awakening || !context.DataIsLoaded )
 			{
-				var session = _session = LoadData( reason );
+				var session = _session = CreateDataSession( reason );
+
+				if( session == null )
+				{
+					session = _session = await CreateDataSessionAsync( reason );
+				}
 
 				if( session != null )
 				{
@@ -131,13 +136,13 @@ namespace Digillect.Mvvm.UI
 					{
 						await _viewModel.Load( session );
 
-						OnLoadDataComplete( session );
+						OnDataLoadComplete( session );
 
 						context.DataIsLoaded = true;
 					}
 					catch( Exception ex )
 					{
-						OnLoadDataFailed( session, ex );
+						OnDataLoadFailed( session, ex );
 					}
 				}
 			}
@@ -148,7 +153,17 @@ namespace Digillect.Mvvm.UI
 		/// </summary>
 		/// <param name="reason">The reason to load page data.</param>
 		/// <returns>Session that should be used to load page data.</returns>
-		protected virtual Session LoadData( DataLoadReason reason )
+		protected virtual Session CreateDataSession( DataLoadReason reason )
+		{
+			return ViewModel.CreateSession();
+		}
+
+		/// <summary>
+		/// This method is called to asynchronously create data loading session.
+		/// </summary>
+		/// <param name="reason">The reason to load page data.</param>
+		/// <returns>Task that will produce session that should be used to load page data.</returns>
+		protected virtual Task<Session> CreateDataSessionAsync( DataLoadReason reason )
 		{
 			return null;
 		}
@@ -157,7 +172,7 @@ namespace Digillect.Mvvm.UI
 		/// Called when data loading process successfully completes.
 		/// </summary>
 		/// <param name="session">The session.</param>
-		protected virtual void OnLoadDataComplete( Session session )
+		protected virtual void OnDataLoadComplete( Session session )
 		{
 		}
 
@@ -166,7 +181,7 @@ namespace Digillect.Mvvm.UI
 		/// </summary>
 		/// <param name="session">Session that failed to load.</param>
 		/// <param name="ex">Reason of the failure.</param>
-		protected virtual void OnLoadDataFailed( Session session, Exception ex )
+		protected virtual void OnDataLoadFailed( Session session, Exception ex )
 		{
 		}
 		#endregion

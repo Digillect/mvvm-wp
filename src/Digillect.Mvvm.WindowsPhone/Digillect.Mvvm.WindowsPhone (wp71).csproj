@@ -167,7 +167,7 @@
       <HintPath>..\..\packages\Digillect.ObjectModel.4.0.0-dev-00004\lib\wp71\Digillect.ObjectModel.dll</HintPath>
     </Reference>
     <Reference Include="Digillect.Mvvm">
-      <HintPath>..\..\packages\Digillect.Mvvm.2.0.0-dev-00011\lib\wp71\Digillect.Mvvm.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.Mvvm.2.0.0-dev-00012\lib\wp71\Digillect.Mvvm.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Contracts">
       <HintPath>C:\Program Files (x86)\Microsoft\Contracts\PublicAssemblies\Silverlight3\Microsoft.Contracts.dll</HintPath>
