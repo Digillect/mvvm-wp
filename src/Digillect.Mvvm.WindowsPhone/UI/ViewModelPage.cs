@@ -144,6 +144,10 @@ namespace Digillect.Mvvm.UI
 					{
 						OnDataLoadFailed( session, ex );
 					}
+					finally
+					{
+						_session = null;
+					}
 				}
 			}
 		}

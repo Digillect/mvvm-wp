@@ -181,12 +181,7 @@ namespace Digillect.Mvvm.Services
 		/// <returns>Decoded value.</returns>
 		public static object DecodeValue( string stringValue, Type targetType )
 		{
-			if( stringValue == null )
-			{
-				return null;
-			}
-
-			if( targetType == typeof( string ) )
+			if( string.IsNullOrEmpty( stringValue ) || targetType == typeof( string ) )
 			{
 				return stringValue;
 			}

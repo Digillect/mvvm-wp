@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace Digillect.Mvvm.UI
 {
@@ -39,7 +40,10 @@ namespace Digillect.Mvvm.UI
 
 			if( queryString.TryGetValue( "Key", out stringKey ) )
 			{
-				ViewParameters.Add( "Key", XKeySerializer.Deserialize( stringKey ) );
+				if( !string.IsNullOrEmpty( stringKey ) )
+				{
+					ViewParameters.Add( "Key", XKeySerializer.Deserialize( stringKey ) );
+				}
 
 				queryString.Remove( "Key" );
 			}

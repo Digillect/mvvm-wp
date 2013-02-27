@@ -11,6 +11,7 @@ namespace Digillect.Mvvm.UI
 	/// <typeparam name="TViewModel">The type of the page model.</typeparam>
 	/// <remarks>Instance of this class performs lookup of the query string upon navigation to find and extract parameter with
 	/// name <c>Id</c> that is used as entity id for page model. If that parameter is not found then <see cref="System.ArgumentException"/> will be thrown.</remarks>
+	[Obsolete( "Use XKey-based EntityPage." )]
 	public class EntityPage<TId, TEntity, TViewModel> : ViewModelPage<TViewModel>
 		where TId: IComparable<TId>, IEquatable<TId>
 		where TEntity: class, IXIdentified<TId>
