@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading;
 using System.Windows;
@@ -232,7 +233,7 @@ namespace Digillect.Mvvm.UI
 
 				if( queryString.TryGetValue( attribute.ParameterName, out stringValue ) )
 				{
-					parameterValue = Services.NavigationService.DecodeValue( stringValue, attribute.ParameterType );
+					parameterValue = ParametersSerializer.DecodeValue( stringValue, attribute.ParameterType );
 
 					if( parameterValue != null )
 					{

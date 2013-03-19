@@ -26,9 +26,9 @@ namespace Digillect.Mvvm.UI
 		[SuppressMessage( "Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors" )]
 		protected PhoneApplication()
 		{
-			InitializeIoC();
-			InitializeApplicationService();
 			InitializePhoneApplication();
+			InitializeApplicationService();
+			InitializeIoC();
 		}
 		#endregion
 
@@ -58,17 +58,6 @@ namespace Digillect.Mvvm.UI
 			RootVisual = RootFrame;
 
 			RootFrame.Navigated -= CompleteInitializePhoneApplication;
-
-#if WINDOWS_PHONE_7
-			if( e.NavigationMode == NavigationMode.New || e.NavigationMode == NavigationMode.Refresh )
-#else
-			if( e.NavigationMode == NavigationMode.Reset )
-#endif
-			{
-				while( RootFrame.RemoveBackEntry() != null )
-				{
-				}
-			}
 		}
 
 		/// <summary>

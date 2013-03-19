@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Navigation;
 
 using Autofac;
 
@@ -14,50 +16,130 @@ namespace Digillect.Mvvm.Services
 	/// <summary>
 	///     Windows phone implementation of <see cref="Digillect.Mvvm.Services.INavigationService" />
 	/// </summary>
-	public sealed class NavigationService : INavigationService, IStartable
+	public sealed class NavigationService : INavigationService, IAuthenticationService, IStartable
 	{
-		private readonly INavigationServiceContext _navigationServiceContext;
-		private readonly Dictionary<string, string> _views = new Dictionary<string, string>( StringComparer.InvariantCultureIgnoreCase );
+		const string AuthenticationSourceStateKey = "___AUTH_SOURCE___";
+		const string AuthenticationTargetStateKey = "___AUTH_TARGET___";
+
+		readonly IAuthenticationServiceContext _authenticationServiceContext;
+		readonly INavigationServiceContext _navigationServiceContext;
+
+		readonly Dictionary<string, ViewDescriptor> _views = new Dictionary<string, ViewDescriptor>( StringComparer.InvariantCultureIgnoreCase );
+
+		bool _authenticationInProgress;
+		bool _initialized;
+		bool _removeLastJournalEntry;
 
 		#region Constructors/Disposer
 		/// <summary>
 		///     Initializes a new instance of the <see cref="NavigationService" /> class.
 		/// </summary>
 		/// <param name="navigationServiceContext">The navigation service context.</param>
-		public NavigationService( INavigationServiceContext navigationServiceContext )
+		/// <param name="authenticationServiceContext">Application extention that helps with authentication.</param>
+		public NavigationService( INavigationServiceContext navigationServiceContext, IAuthenticationServiceContext authenticationServiceContext = null )
 		{
 			_navigationServiceContext = navigationServiceContext;
+			_authenticationServiceContext = authenticationServiceContext;
 		}
 		#endregion
 
-		#region Start
+		#region IAuthenticationService Members
 		/// <summary>
-		///     Perform once-off startup processing.
+		///     Gets a value indicating whether authentication is in progress.
 		/// </summary>
-		public void Start()
+		/// <value>
+		///     <c>true</c> if authentication is in progress; otherwise, <c>false</c>.
+		/// </value>
+		public bool AuthenticationInProgress
 		{
-			Assembly assemblyToScan = _navigationServiceContext.GetMainAssemblyContainingViews();
-			string rootNamespace = _navigationServiceContext.GetRootNamespace();
+			get { return _authenticationInProgress; }
+		}
 
-			foreach( Type type in assemblyToScan.GetTypes().Where( t => !t.IsAbstract && t.GetCustomAttributes( typeof( ViewAttribute ), false ).Any() ) )
+		/// <summary>
+		///     Starts the authentication.
+		/// </summary>
+		public void StartAuthentication()
+		{
+			StartAuthentication( null, null );
+		}
+
+		/// <summary>
+		///     Starts the authentication.
+		/// </summary>
+		/// <param name="initialViewName">Name of the initial view in the authentication flow.</param>
+		/// <param name="parameters">Parameters for the initial view.</param>
+		public async void StartAuthentication( string initialViewName, Parameters parameters )
+		{
+			if( _authenticationServiceContext != null )
 			{
-				string typeName = type.FullName.StartsWith( rootNamespace ) ? type.FullName.Substring( rootNamespace.Length + 1 ) : type.FullName;
-				ViewAttribute viewAttribute = type.GetCustomAttributes( typeof( ViewAttribute ), false ).Cast<ViewAttribute>().First();
-				string viewName = viewAttribute.Name ?? type.Name;
+				Tuple<Uri, ViewDescriptor> result = await BeginAuthentication( null, initialViewName, parameters );
 
-				if( viewAttribute.Path != null )
+				if( result.Item1 != null )
 				{
-					_views.Add( viewName, viewAttribute.Path );
+					_navigationServiceContext.Navigate( result.Item1 );
 				}
-				else
+			}
+		}
+
+		/// <summary>
+		///     Cancels the authentication.
+		/// </summary>
+		public void CancelAuthentication()
+		{
+			CancelAuthenticationAndRollbackHistory();
+		}
+
+		/// <summary>
+		///     Completes the authentication.
+		/// </summary>
+		public void CompleteAuthentication()
+		{
+			var app = (PhoneApplication) Application.Current;
+			var sourceUri = app.ApplicationService.State[AuthenticationSourceStateKey] as Uri;
+			var targetUri = app.ApplicationService.State[AuthenticationTargetStateKey] as Uri;
+
+			app.ApplicationService.State[AuthenticationSourceStateKey] = null;
+			app.ApplicationService.State[AuthenticationTargetStateKey] = null;
+
+			_authenticationInProgress = false;
+
+			// Rewind journal
+
+			int numberOfEntriesToRemove = 0;
+			bool sourceUriIsFoundInBackStack = false;
+
+			foreach( JournalEntry entry in app.RootFrame.BackStack )
+			{
+				if( entry.Source == sourceUri )
 				{
-					_views.Add( viewName, typeName.Replace( '.', '/' ) + ".xaml" );
+					sourceUriIsFoundInBackStack = true;
+					break;
 				}
+
+				numberOfEntriesToRemove++;
+			}
+
+			if( sourceUriIsFoundInBackStack )
+			{
+				while( numberOfEntriesToRemove-- > 0 )
+				{
+					app.RootFrame.RemoveBackEntry();
+				}
+			}
+
+			if( targetUri != null )
+			{
+				_removeLastJournalEntry = true;
+				_navigationServiceContext.Navigate( targetUri );
+			}
+			else
+			{
+				_navigationServiceContext.GoBack();
 			}
 		}
 		#endregion
 
-		#region Navigate
+		#region INavigationService Members
 		/// <summary>
 		///     Navigates to the specified view.
 		/// </summary>
@@ -77,7 +159,7 @@ namespace Digillect.Mvvm.Services
 		/// <exception cref="System.ArgumentNullException">viewName</exception>
 		/// <exception cref="System.ArgumentException">viewName</exception>
 		[CLSCompliant( false )]
-		public void Navigate( string viewName, Parameters parameters )
+		public async void Navigate( string viewName, Parameters parameters )
 		{
 			if( viewName == null )
 			{
@@ -86,26 +168,39 @@ namespace Digillect.Mvvm.Services
 
 			Contract.EndContractBlock();
 
-			string path;
+			ViewDescriptor descriptor;
 
-			if( !_views.TryGetValue( viewName, out path ) )
+			if( !_views.TryGetValue( viewName, out descriptor ) )
 			{
 				throw new ArgumentException( String.Format( "View with name '{0}' is not registered.", viewName ), "viewName" );
 			}
 
-			try
-			{
-				var uri = new Uri( string.Format( "/{0}{1}", path, parameters != null ? "?" + string.Join( "&", parameters.Select( p => p.Key + "=" + EncodeValue( p.Value ) ) ) : string.Empty ), UriKind.Relative );
+			var uri = new Uri( string.Format( "/{0}{1}", descriptor.Path, parameters != null ? "?" + string.Join( "&", parameters.Select( p => p.Key + "=" + ParametersSerializer.EncodeValue( p.Value ) ) ) : string.Empty ), UriKind.Relative );
 
-				_navigationServiceContext.Navigate( uri );
-			}
-			catch( InvalidOperationException )
+			if( descriptor.AuthenticationRequired && _authenticationServiceContext != null )
 			{
+				Tuple<Uri, ViewDescriptor> result = await BeginAuthentication( uri, null, null );
+
+				uri = result.Item1;
+
+				if( result.Item2 != null )
+				{
+					descriptor = result.Item2;
+				}
+			}
+
+			if( _authenticationInProgress && !descriptor.PartOfAuthentication )
+			{
+				CancelAuthenticationAndRollbackHistory();
+			}
+			else
+			{
+				_navigationServiceContext.Navigate( uri );
 			}
 		}
 
 		/// <summary>
-		/// Navigated to the previous view, if any.
+		///     Navigated to the previous view, if any.
 		/// </summary>
 		public void GoBack()
 		{
@@ -113,7 +208,7 @@ namespace Digillect.Mvvm.Services
 		}
 
 		/// <summary>
-		/// Navigates back until encounters view named <paramref name="viewName" />.
+		///     Navigates back until encounters view named <paramref name="viewName" />.
 		/// </summary>
 		/// <param name="viewName">Name of the view.</param>
 		/// <exception cref="System.ArgumentNullException">viewName</exception>
@@ -128,87 +223,178 @@ namespace Digillect.Mvvm.Services
 		}
 		#endregion
 
-		#region Encode/Decode values
-		private const string DateTimeFormatString = "yyyy-MM-ddThh:mm:sszzz";
-
+		#region IStartable Members
 		/// <summary>
-		///     Encodes the value to string representation.
+		///     Perform once-off startup processing.
 		/// </summary>
-		/// <param name="value">The value.</param>
-		/// <returns>Encoded value.</returns>
-		public static string EncodeValue( object value )
+		public void Start()
 		{
-			if( value == null )
+			Assembly assemblyToScan = _navigationServiceContext.GetMainAssemblyContainingViews();
+			string rootNamespace = _navigationServiceContext.GetRootNamespace();
+
+			foreach( Type type in assemblyToScan.GetTypes().Where( t => !t.IsAbstract && t.GetCustomAttributes( typeof( ViewAttribute ), true ).Any() ) )
 			{
-				return null;
+				string typeName = type.FullName.StartsWith( rootNamespace ) ? type.FullName.Substring( rootNamespace.Length + 1 ) : type.FullName;
+				ViewAttribute viewAttribute = type.GetCustomAttributes( typeof( ViewAttribute ), true ).Cast<ViewAttribute>().First();
+				string viewName = viewAttribute.Name ?? type.Name;
+
+				var descriptor = new ViewDescriptor
+									{
+										Name = viewName,
+										Path = viewAttribute.Path ?? typeName.Replace( '.', '/' ) + ".xaml",
+										AuthenticationRequired = viewAttribute.AuthenticationRequired,
+										PartOfAuthentication = viewAttribute.PartOfAuthentication
+									};
+
+				_views.Add( viewName, descriptor );
 			}
 
-			var valueType = value.GetType();
-			string formattedValue;
+			var app = (PhoneApplication) Application.Current;
 
-			if( valueType == typeof( DateTime ) )
+			app.RootFrame.Navigated += RootFrame_Navigated;
+			app.RootFrame.Navigating += RootFrame_Navigating;
+			app.RootFrame.NavigationFailed += RootFrame_NavigationFailed;
+		}
+		#endregion
+
+		#region Event handlers
+		void RootFrame_Navigated( object sender, NavigationEventArgs e )
+		{
+			var app = (PhoneApplication) Application.Current;
+
+			if( !_initialized )
 			{
-				var dtValue = (DateTime) value;
-
-				formattedValue = dtValue.ToString( DateTimeFormatString, CultureInfo.InvariantCulture );
-			}
-			else
-			{
-				if( valueType == typeof( DateTimeOffset ) )
-				{
-					var dtValue = (DateTimeOffset) value;
-
-					formattedValue = dtValue.ToString( DateTimeFormatString, CultureInfo.InvariantCulture );
-				}
-				else if( valueType == typeof( XKey ) )
-				{
-					formattedValue = XKeySerializer.Serialize( (XKey) value );
-				}
-				else
-				{
-					formattedValue = (string) Convert.ChangeType( value, typeof( string ), CultureInfo.InvariantCulture );
-				}
+				CompleteInitialization( e );
 			}
 
-			return Uri.EscapeDataString( formattedValue );
+			if( e.NavigationMode == NavigationMode.New )
+			{
+				if( _removeLastJournalEntry )
+				{
+					app.RootFrame.RemoveBackEntry();
+					_removeLastJournalEntry = false;
+				}
+			}
+			else if( e.NavigationMode == NavigationMode.Back )
+			{
+				if( _authenticationInProgress )
+				{
+					var sourceUri = app.ApplicationService.State[AuthenticationSourceStateKey] as Uri;
+
+					if( e.Uri == sourceUri )
+					{
+						app.ApplicationService.State[AuthenticationSourceStateKey] = null;
+						app.ApplicationService.State[AuthenticationTargetStateKey] = null;
+
+						_authenticationInProgress = false;
+					}
+				}
+			}
 		}
 
-		/// <summary>
-		///     Decodes the value.
-		/// </summary>
-		/// <param name="stringValue">String representation of the value.</param>
-		/// <param name="targetType">Target value type.</param>
-		/// <returns>Decoded value.</returns>
-		public static object DecodeValue( string stringValue, Type targetType )
+		void RootFrame_Navigating( object sender, NavigatingCancelEventArgs e )
 		{
-			if( string.IsNullOrEmpty( stringValue ) || targetType == typeof( string ) )
+		}
+
+		void RootFrame_NavigationFailed( object sender, NavigationFailedEventArgs navigationFailedEventArgs )
+		{
+		}
+		#endregion
+
+		void CompleteInitialization( NavigationEventArgs e )
+		{
+			var app = (PhoneApplication) Application.Current;
+
+			_initialized = true;
+
+#if WINDOWS_PHONE_7
+			if( e.NavigationMode == NavigationMode.New || e.NavigationMode == NavigationMode.Refresh )
+#else
+			if( e.NavigationMode == NavigationMode.Reset )
+#endif
 			{
-				return stringValue;
+				while( app.RootFrame.RemoveBackEntry() != null )
+				{
+				}
+			}
+		}
+
+		async Task<Tuple<Uri, ViewDescriptor>> BeginAuthentication( Uri targetUri, string initialViewName, Parameters parameters )
+		{
+			var app = (PhoneApplication) Application.Current;
+			bool authenticated = await _authenticationServiceContext.IsAuthenticated();
+			ViewDescriptor descriptor = null;
+
+			if( !authenticated && !_authenticationInProgress )
+			{
+				app.ApplicationService.State[AuthenticationSourceStateKey] = app.RootFrame.CurrentSource;
+				app.ApplicationService.State[AuthenticationTargetStateKey] = targetUri;
+
+				if( string.IsNullOrEmpty( initialViewName ) )
+				{
+					initialViewName = _authenticationServiceContext.AuthenticationViewName;
+					parameters = _authenticationServiceContext.AuthenticationViewParameters;
+				}
+
+				if( !_views.TryGetValue( initialViewName, out descriptor ) )
+				{
+					throw new InvalidOperationException( string.Format( "View with name '{0}' is not registered.", initialViewName ) );
+				}
+
+				targetUri = new Uri( string.Format( "/{0}{1}", descriptor.Path, parameters != null ? "?" + string.Join( "&", parameters.Select( p => p.Key + "=" + ParametersSerializer.EncodeValue( p.Value ) ) ) : string.Empty ), UriKind.Relative );
+
+				_authenticationInProgress = true;
 			}
 
-			try
+			return Tuple.Create( targetUri, descriptor );
+		}
+
+		void CancelAuthenticationAndRollbackHistory()
+		{
+			var app = (PhoneApplication) Application.Current;
+			var sourceUri = app.ApplicationService.State[AuthenticationSourceStateKey] as Uri;
+
+			app.ApplicationService.State[AuthenticationSourceStateKey] = null;
+			app.ApplicationService.State[AuthenticationTargetStateKey] = null;
+
+			// Rewind journal
+
+			int numberOfEntriesToRemove = 0;
+			bool sourceUriIsFoundInBackStack = false;
+
+			foreach( JournalEntry entry in app.RootFrame.BackStack )
 			{
-				if( targetType == typeof( DateTime ) )
+				if( entry.Source == sourceUri )
 				{
-					return DateTime.ParseExact( stringValue, DateTimeFormatString, CultureInfo.InvariantCulture );
+					sourceUriIsFoundInBackStack = true;
+					break;
 				}
-				
-				if( targetType == typeof( DateTimeOffset ) )
-				{
-					return DateTimeOffset.ParseExact( stringValue, DateTimeFormatString, CultureInfo.InvariantCulture );
-				}
-					
-				if( targetType == typeof( XKey ) )
-				{
-					return XKeySerializer.Deserialize( stringValue );
-				}
-					
-				return Convert.ChangeType( stringValue, targetType, CultureInfo.InvariantCulture );
+
+				numberOfEntriesToRemove++;
 			}
-			catch( Exception )
+
+			if( sourceUriIsFoundInBackStack )
 			{
-				return null;
+				while( numberOfEntriesToRemove-- > 0 )
+				{
+					app.RootFrame.RemoveBackEntry();
+				}
+
+				_navigationServiceContext.GoBack();
 			}
+
+			_authenticationInProgress = false;
+		}
+
+		#region Nested type: ViewDescriptor
+		class ViewDescriptor
+		{
+			#region Public Properties
+			public string Name { get; set; }
+			public string Path { get; set; }
+			public bool AuthenticationRequired { get; set; }
+			public bool PartOfAuthentication { get; set; }
+			#endregion
 		}
 		#endregion
 	}

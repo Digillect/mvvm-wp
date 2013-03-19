@@ -163,11 +163,12 @@
       <HintPath>..\..\packages\Autofac.2.6.3.862\lib\SL4-WindowsPhone71\Autofac.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Digillect.Mvvm, Version=2.0.0.0, Culture=neutral, PublicKeyToken=46fb24501f5dffcf, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Digillect.Mvvm.2.0.0-dev-00016\lib\wp71\Digillect.Mvvm.dll</HintPath>
+    </Reference>
     <Reference Include="Digillect.ObjectModel">
       <HintPath>..\..\packages\Digillect.ObjectModel.4.0.0-dev-00004\lib\wp71\Digillect.ObjectModel.dll</HintPath>
-    </Reference>
-    <Reference Include="Digillect.Mvvm">
-      <HintPath>..\..\packages\Digillect.Mvvm.2.0.0-dev-00012\lib\wp71\Digillect.Mvvm.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Contracts">
       <HintPath>C:\Program Files (x86)\Microsoft\Contracts\PublicAssemblies\Silverlight3\Microsoft.Contracts.dll</HintPath>
@@ -205,14 +206,16 @@
     <Compile Include="..\AssemblySharedInfo.cs">
       <Link>Properties\AssemblySharedInfo.cs</Link>
     </Compile>
+    <Compile Include="Services\IAuthenticationService.cs" />
+    <Compile Include="Services\IAuthenticationServiceContext.cs" />
     <Compile Include="Services\INavigationServiceContext.cs" />
     <Compile Include="Services\NavigationService.cs" />
+    <Compile Include="Services\ParametersSerializer.cs" />
     <Compile Include="Services\WindowsPhoneModule.cs" />
     <Compile Include="UI\DataContextProxy.cs" />
     <Compile Include="Services\IPageDecorator.cs" />
     <Compile Include="UI\DataLoadReason.cs" />
     <Compile Include="UI\EntityPage`2.cs" />
-    <Compile Include="UI\EntityPage`3.cs" />
     <Compile Include="UI\PageDataContext.cs" />
     <Compile Include="Services\IPageDecorationService.cs" />
     <Compile Include="Services\PageDecorationService.cs" />
