@@ -35,8 +35,17 @@ namespace Digillect.Mvvm.Services
 		///     Initializes a new instance of the <see cref="NavigationService" /> class.
 		/// </summary>
 		/// <param name="navigationServiceContext">The navigation service context.</param>
+		public NavigationService( INavigationServiceContext navigationServiceContext )
+			: this( navigationServiceContext, null )
+		{
+		}
+
+		/// <summary>
+		///     Initializes a new instance of the <see cref="NavigationService" /> class.
+		/// </summary>
+		/// <param name="navigationServiceContext">The navigation service context.</param>
 		/// <param name="authenticationServiceContext">Application extention that helps with authentication.</param>
-		public NavigationService( INavigationServiceContext navigationServiceContext, IAuthenticationServiceContext authenticationServiceContext = null )
+		public NavigationService( INavigationServiceContext navigationServiceContext, IAuthenticationServiceContext authenticationServiceContext )
 		{
 			_navigationServiceContext = navigationServiceContext;
 			_authenticationServiceContext = authenticationServiceContext;

@@ -17,11 +17,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion(AssemblyInfo.FileVersion)]
 [assembly: AssemblyInformationalVersion(AssemblyInfo.ProductVersion)]
 
-#if !WINDOWS8
-[assembly: CLSCompliant(true)]
-#else
 [assembly: CLSCompliant(false)]
-#endif
 
 [assembly: ComVisible(false)]
 [assembly: NeutralResourcesLanguage("en-US")]
