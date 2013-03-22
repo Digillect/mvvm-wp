@@ -104,7 +104,7 @@ namespace Digillect.Mvvm.UI
 		{
 			_viewModel = CreateViewModel();
 
-			return Scope.Resolve<ViewModelPageDataContext.Factory>()( this, _viewModel );
+			return new ViewModelPageDataContext( this, _viewModel );
 		}
 		#endregion
 

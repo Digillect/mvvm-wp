@@ -9,6 +9,7 @@ using System.Windows.Markup;
 using System.Windows.Navigation;
 
 using Autofac;
+using Autofac.Core;
 
 using Digillect.Mvvm.Services;
 
@@ -144,7 +145,7 @@ namespace Digillect.Mvvm.UI
 		/// </returns>
 		protected virtual PageDataContext CreateDataContext()
 		{
-			return _scope.Resolve<PageDataContext.Factory>()( this );
+			return new PageDataContext( this );
 		}
 
 		/// <summary>

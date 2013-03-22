@@ -7,15 +7,6 @@ namespace Digillect.Mvvm.UI
 	/// </summary>
 	public class ViewModelPageDataContext : PageDataContext
 	{
-		/// <summary>
-		/// Factory that is used to create instances of context.
-		/// </summary>
-		/// <param name="page">The page.</param>
-		/// <param name="viewModel">The page model.</param>
-		/// <returns>Instance of context.</returns>
-		[CLSCompliant( false )]
-		public new delegate ViewModelPageDataContext Factory( Page page, ViewModel viewModel );
-
 		private bool _dataIsLoaded;
 
 		#region Constructors/Disposer

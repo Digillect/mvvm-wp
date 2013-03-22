@@ -7,15 +7,6 @@ namespace Digillect.Mvvm.UI
 	/// </summary>
 	public class PageDataContext : ObservableObject, IDisposable
 	{
-		#region Delegates
-		/// <summary>
-		///     Factory that is used to create instances of context.
-		/// </summary>
-		/// <param name="page">The page.</param>
-		/// <returns>Instance of the context.</returns>
-		public delegate PageDataContext Factory( Page page );
-		#endregion
-
 		private readonly Page _page;
 
 		#region Constructors/Disposer
