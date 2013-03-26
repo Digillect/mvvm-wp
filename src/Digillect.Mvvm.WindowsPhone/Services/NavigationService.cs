@@ -244,15 +244,17 @@ namespace Digillect.Mvvm.Services
 			foreach( Type type in assemblyToScan.GetTypes().Where( t => !t.IsAbstract && t.GetCustomAttributes( typeof( ViewAttribute ), true ).Any() ) )
 			{
 				string typeName = type.FullName.StartsWith( rootNamespace ) ? type.FullName.Substring( rootNamespace.Length + 1 ) : type.FullName;
-				ViewAttribute viewAttribute = type.GetCustomAttributes( typeof( ViewAttribute ), true ).Cast<ViewAttribute>().First();
+				var viewAttribute = type.GetCustomAttributes( typeof( ViewAttribute ), true ).Cast<ViewAttribute>().First();
+				var viewPathAttribute = type.GetCustomAttributes( typeof( ViewPathAttribute ), false ).Cast<ViewPathAttribute>().FirstOrDefault();
 				string viewName = viewAttribute.Name ?? type.Name;
 
 				var descriptor = new ViewDescriptor
 									{
 										Name = viewName,
-										Path = viewAttribute.Path ?? typeName.Replace( '.', '/' ) + ".xaml",
-										AuthenticationRequired = viewAttribute.AuthenticationRequired,
-										PartOfAuthentication = viewAttribute.PartOfAuthentication
+										Type = type,
+										Path = viewPathAttribute == null ? typeName.Replace( '.', '/' ) + ".xaml" : viewPathAttribute.Path,
+										AuthenticationRequired = type.GetCustomAttributes( typeof( ViewRequiresAuthenticationAttribute ), false ).Any(),
+										PartOfAuthentication = type.GetCustomAttributes( typeof( ViewIsPartOfAuthenticationFlowAttribute ), false ).Any()
 									};
 
 				_views.Add( viewName, descriptor );
@@ -400,6 +402,7 @@ namespace Digillect.Mvvm.Services
 		{
 			#region Public Properties
 			public string Name { get; set; }
+			public Type Type { get; set; }
 			public string Path { get; set; }
 			public bool AuthenticationRequired { get; set; }
 			public bool PartOfAuthentication { get; set; }

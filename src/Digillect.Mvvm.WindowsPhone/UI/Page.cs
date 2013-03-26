@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Navigation;
 
 using Autofac;
-using Autofac.Core;
 
 using Digillect.Mvvm.Services;
 
@@ -18,12 +19,12 @@ namespace Digillect.Mvvm.UI
 	/// <summary>
 	///     Base for application pages.
 	/// </summary>
-	public class Page : Microsoft.Phone.Controls.PhoneApplicationPage
+	public class Page : Microsoft.Phone.Controls.PhoneApplicationPage, INotifyPropertyChanged
 	{
 		private const string RessurectionMark = "__mark$mark__";
 
-		private ILifetimeScope _scope;
 		private readonly Parameters _viewParameters = new Parameters();
+		private ILifetimeScope _scope;
 
 		#region Constructor
 		/// <summary>
@@ -37,14 +38,6 @@ namespace Digillect.Mvvm.UI
 
 		#region Public Properties
 		/// <summary>
-		///     Gets the current application.
-		/// </summary>
-		public PhoneApplication CurrentApplication
-		{
-			get { return (PhoneApplication) Application.Current; }
-		}
-
-		/// <summary>
 		///     Gets the IoC lifetime scope.
 		/// </summary>
 		public ILifetimeScope Scope
@@ -53,13 +46,9 @@ namespace Digillect.Mvvm.UI
 		}
 
 		/// <summary>
-		///     Gets the page parameters.
+		///     Gets the parameters passed to this view.
 		/// </summary>
-		/// <value>
-		///     The parameters.
-		/// </value>
-		[CLSCompliant( false )]
-		public Parameters ViewParameters
+		protected Parameters ViewParameters
 		{
 			get { return _viewParameters; }
 		}
@@ -76,9 +65,10 @@ namespace Digillect.Mvvm.UI
 
 			if( _scope == null )
 			{
-				_scope = CurrentApplication.Scope.BeginLifetimeScope();
+				_scope = ((PhoneApplication) Application.Current).Scope.BeginLifetimeScope();
 
 				ParseParameters();
+
 				DataContext = CreateDataContext();
 
 				if( State.ContainsKey( RessurectionMark ) )
@@ -90,7 +80,7 @@ namespace Digillect.Mvvm.UI
 					OnPageCreated();
 				}
 
-				IPageDecorationService pageDecorationService = null;
+				IPageDecorationService pageDecorationService;
 
 				if( Scope.TryResolve( out pageDecorationService ) )
 				{
@@ -143,9 +133,9 @@ namespace Digillect.Mvvm.UI
 		/// <returns>
 		///     Data context that will be set to <see cref="System.Windows.FrameworkElement.DataContext" /> property.
 		/// </returns>
-		protected virtual PageDataContext CreateDataContext()
+		protected virtual object CreateDataContext()
 		{
-			return new PageDataContext( this );
+			return this;
 		}
 
 		/// <summary>
@@ -252,6 +242,75 @@ namespace Digillect.Mvvm.UI
 					}
 				}
 			}
+		}
+		#endregion
+
+		#region INotifyPropertyChanged implementation
+		/// <summary>
+		/// Occurs when a property value changes.
+		/// </summary>
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		/// <summary>
+		/// Raises the <see cref="PropertyChanged"/> event.
+		/// </summary>
+		/// <param name="propertyName">Name of the property.</param>
+#if NET45
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed", Justification = "Required for the CallerMemberName attribute.")]
+		protected void OnPropertyChanged( [CallerMemberName] string propertyName = null )
+#else
+		protected void OnPropertyChanged( string propertyName )
+#endif
+		{
+			OnPropertyChanged( new PropertyChangedEventArgs( propertyName ) );
+		}
+
+		/// <summary>
+		/// Raises the <see cref="PropertyChanged"/> event.
+		/// </summary>
+		/// <param name="e">The <see cref="System.ComponentModel.PropertyChangedEventArgs"/> instance containing the event data.</param>
+		protected virtual void OnPropertyChanged( PropertyChangedEventArgs e )
+		{
+			if( PropertyChanged != null )
+			{
+				PropertyChanged( this, e );
+			}
+		}
+
+		/// <summary>
+		/// Checks if a property already matches a desired value.  Sets the property and
+		/// notifies listeners only when necessary.
+		/// </summary>
+		/// <typeparam name="T">Type of the property.</typeparam>
+		/// <param name="location">The variable to set to the specified value.</param>
+		/// <param name="value">The value to which the <paramref name="location"/> parameter is set.</param>
+		/// <param name="propertyName">Name of the property used to notify listeners.</param>
+		/// <returns><c>True</c> if the value has changed; <c>false</c> if the <paramref name="location"/> matches (by equality) the <paramref name="value"/>.</returns>
+		/// <remarks>
+		/// <b>.NET 4.5.</b> <paramref name="propertyName"/> is optional and can be provided automatically
+		/// when invoked from compilers which support the <c>CallerMemberName</c> attribute.
+		/// </remarks>
+		[SuppressMessage( "Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "0#" )]
+#if NET45
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed", Justification = "Required for the CallerMemberName attribute.")]
+		protected bool SetProperty<T>(ref T location, T value, [CallerMemberName] string propertyName = null)
+#else
+		protected bool SetProperty<T>( ref T location, T value, string propertyName )
+#endif
+		{
+			if( Equals( location, value ) )
+			{
+				return false;
+			}
+
+			location = value;
+
+			if( propertyName != null )
+			{
+				OnPropertyChanged( propertyName );
+			}
+
+			return true;
 		}
 		#endregion
 	}

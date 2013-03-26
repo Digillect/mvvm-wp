@@ -14,6 +14,7 @@ namespace Digillect.Mvvm.UI
 	{
 		private TViewModel _viewModel;
 		private Session _session;
+		private bool _dataIsLoaded;
 
 		#region Public Properties
 		/// <summary>
@@ -22,6 +23,18 @@ namespace Digillect.Mvvm.UI
 		public TViewModel ViewModel
 		{
 			get { return _viewModel; }
+		}
+
+		/// <summary>
+		/// Gets or sets a value indicating whether data for the view is loaded.
+		/// </summary>
+		/// <value>
+		///   <c>true</c> if data is loaded; otherwise, <c>false</c>.
+		/// </value>
+		public bool DataIsLoaded
+		{
+			get { return _dataIsLoaded; }
+			private set { SetProperty( ref _dataIsLoaded, value, "DataIsLoaded" ); }
 		}
 		#endregion
 
@@ -100,11 +113,11 @@ namespace Digillect.Mvvm.UI
 		/// <returns>
 		///     Data context that will be set to <see cref="System.Windows.FrameworkElement.DataContext" /> property.
 		/// </returns>
-		protected override PageDataContext CreateDataContext()
+		protected override object CreateDataContext()
 		{
 			_viewModel = CreateViewModel();
 
-			return new ViewModelPageDataContext( this, _viewModel );
+			return base.CreateDataContext();
 		}
 		#endregion
 
@@ -119,9 +132,7 @@ namespace Digillect.Mvvm.UI
 
 		private async void InternalLoadData( DataLoadReason reason )
 		{
-			var context = (ViewModelPageDataContext) DataContext;
-
-			if( reason != DataLoadReason.Awakening || !context.DataIsLoaded )
+			if( reason != DataLoadReason.Awakening || !_dataIsLoaded )
 			{
 				var session = _session = CreateDataSession( reason );
 
@@ -138,7 +149,7 @@ namespace Digillect.Mvvm.UI
 
 						OnDataLoadComplete( session );
 
-						context.DataIsLoaded = true;
+						DataIsLoaded = true;
 					}
 					catch( Exception ex )
 					{
