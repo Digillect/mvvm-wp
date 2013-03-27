@@ -26,7 +26,12 @@ namespace Digillect.Mvvm.Services
 
 			builder.RegisterType<NetworkAvailabilityService>().As<INetworkAvailabilityService, IStartable>().SingleInstance();
 			builder.RegisterType<PageDecorationService>().As<IPageDecorationService>().SingleInstance();
-			builder.RegisterType<NavigationService>().As<INavigationService, IAuthenticationService, IStartable>().SingleInstance().PropertiesAutowired();
+			builder.RegisterType<NavigationService>().As<INavigationService, IWindowsPhoneNavigationService, IStartable>().SingleInstance();
+			
+			builder.RegisterType<AuthenticationService>()
+				.As<IAuthenticationService, INavigationHandler, IStartable>()
+				.SingleInstance()
+				.OnActivated( e => e.Instance.SetNavigationService( e.Context.Resolve<IWindowsPhoneNavigationService>() ) );
 		}
 	}
 }

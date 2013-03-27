@@ -28,7 +28,7 @@ namespace Digillect.Mvvm.Services
 		/// <summary>
 		///     Determines whether user has been authenticated.
 		/// </summary>
-		/// <returns>Task that can be awaited to get value, indicating wether current user has been authenticated.</returns>
+		/// <returns>Task that can be awaited to get value, indicating whether current user has been authenticated.</returns>
 		Task<bool> IsAuthenticated();
 	}
 }

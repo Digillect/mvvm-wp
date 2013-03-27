@@ -18,12 +18,7 @@ namespace Digillect.Mvvm.UI
 		/// <exception cref="ArgumentNullException">If <paramref name="path"/> is <c>null</c>.</exception>
 		public ViewPathAttribute( string path )
 		{
-			if( path == null )
-			{
-				throw new ArgumentNullException( "path" );
-			}
-
-			Contract.EndContractBlock();
+			Contract.Requires<ArgumentNullException>( path != null );
 
 			_path = path;
 		}

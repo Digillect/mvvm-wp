@@ -1,4 +1,6 @@
-﻿namespace Digillect.Mvvm.Services
+﻿using System.Threading.Tasks;
+
+namespace Digillect.Mvvm.Services
 {
 	/// <summary>
 	/// Orchestrates authentication process.
@@ -16,13 +18,13 @@
 		/// <summary>
 		/// Starts the authentication.
 		/// </summary>
-		void StartAuthentication();
+		Task StartAuthentication();
 		/// <summary>
 		/// Starts the authentication.
 		/// </summary>
 		/// <param name="initialViewName">Name of the initial view in the authentication flow.</param>
 		/// <param name="parameters">Parameters for the initial view.</param>
-		void StartAuthentication( string initialViewName, Parameters parameters );
+		Task StartAuthentication( string initialViewName, Parameters parameters );
 
 		/// <summary>
 		/// Completes the authentication.

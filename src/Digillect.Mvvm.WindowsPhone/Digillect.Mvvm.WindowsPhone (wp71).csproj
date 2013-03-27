@@ -18,7 +18,7 @@
     <SilverlightApplication>false</SilverlightApplication>
     <ValidateXaml>true</ValidateXaml>
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
-    <CodeContractsAssemblyMode>0</CodeContractsAssemblyMode>
+    <CodeContractsAssemblyMode>1</CodeContractsAssemblyMode>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Digillect.snk</AssemblyOriginatorKeyFile>
     <BaseIntermediateOutputPath Condition=" '$(BaseIntermediateOutputPath)' == '' ">obj\wp71\</BaseIntermediateOutputPath>
@@ -67,6 +67,9 @@
     <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
     <CodeContractsReferenceAssembly>Build</CodeContractsReferenceAssembly>
     <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
+    <CodeContractsMissingPublicRequiresAsWarnings>True</CodeContractsMissingPublicRequiresAsWarnings>
+    <CodeContractsSQLServerOption />
+    <CodeContractsFailBuildOnWarnings>False</CodeContractsFailBuildOnWarnings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -165,7 +168,7 @@
     </Reference>
     <Reference Include="Digillect.Mvvm, Version=2.0.0.0, Culture=neutral, PublicKeyToken=46fb24501f5dffcf, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Digillect.Mvvm.2.0.0-dev-00017\lib\wp71\Digillect.Mvvm.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.Mvvm.2.0.0-dev-00019\lib\wp71\Digillect.Mvvm.dll</HintPath>
     </Reference>
     <Reference Include="Digillect.ObjectModel">
       <HintPath>..\..\packages\Digillect.ObjectModel.4.0.0-dev-00006\lib\wp71\Digillect.ObjectModel.dll</HintPath>
@@ -206,9 +209,19 @@
     <Compile Include="..\AssemblySharedInfo.cs">
       <Link>Properties\AssemblySharedInfo.cs</Link>
     </Compile>
+    <Compile Include="Services\AuthenticationService.cs" />
+    <Compile Include="Services\DefaultViewDiscoveryService.cs" />
     <Compile Include="Services\IAuthenticationService.cs" />
     <Compile Include="Services\IAuthenticationServiceContext.cs" />
-    <Compile Include="Services\INavigationServiceContext.cs" />
+    <Compile Include="Services\INavigationHandler.cs" />
+    <Compile Include="Services\INavigationHandlerContract.cs" />
+    <Compile Include="Services\IPageDecorationServiceContract.cs" />
+    <Compile Include="Services\IPageDecoratorContract.cs" />
+    <Compile Include="Services\IViewDiscoveryService.cs" />
+    <Compile Include="Services\IViewDiscoveryServiceContract.cs" />
+    <Compile Include="Services\IWindowsPhoneNavigationService.cs" />
+    <Compile Include="Services\IWindowsPhoneNavigationServiceContract.cs" />
+    <Compile Include="Services\NavigationContext.cs" />
     <Compile Include="Services\NavigationService.cs" />
     <Compile Include="Services\ParametersSerializer.cs" />
     <Compile Include="Services\WindowsPhoneModule.cs" />
