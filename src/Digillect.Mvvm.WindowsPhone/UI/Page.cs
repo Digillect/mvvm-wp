@@ -1,8 +1,28 @@
-﻿using System;
+﻿#region Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
+// Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this
+// software and associated documentation files (the "Software"), to deal in the Software
+// without restriction, including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
+// to whom the Software is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all copies or
+// substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -14,12 +34,14 @@ using Autofac;
 
 using Digillect.Mvvm.Services;
 
+using Microsoft.Phone.Controls;
+
 namespace Digillect.Mvvm.UI
 {
 	/// <summary>
 	///     Base for application pages.
 	/// </summary>
-	public class Page : Microsoft.Phone.Controls.PhoneApplicationPage, INotifyPropertyChanged
+	public class Page : PhoneApplicationPage, INotifyPropertyChanged
 	{
 		private const string RessurectionMark = "__mark$mark__";
 
@@ -44,7 +66,9 @@ namespace Digillect.Mvvm.UI
 		{
 			get { return _scope; }
 		}
+		#endregion
 
+		#region Public Properties
 		/// <summary>
 		///     Gets the parameters passed to this view.
 		/// </summary>
@@ -127,17 +151,8 @@ namespace Digillect.Mvvm.UI
 		#endregion
 
 		#region Page Lifecycle handlers
-		/// <summary>
-		///     Creates data context to be set for the page. Override to create your own data context.
-		/// </summary>
-		/// <returns>
-		///     Data context that will be set to <see cref="System.Windows.FrameworkElement.DataContext" /> property.
-		/// </returns>
-		protected virtual object CreateDataContext()
-		{
-			return this;
-		}
 
+		#region Events and event raisers
 		/// <summary>
 		///     This method is called when page is visited for the very first time. You should perform
 		///     initialization and create one-time initialized resources here.
@@ -174,6 +189,18 @@ namespace Digillect.Mvvm.UI
 		/// </summary>
 		protected virtual void OnPageDestroyed()
 		{
+		}
+		#endregion
+
+		/// <summary>
+		///     Creates data context to be set for the page. Override to create your own data context.
+		/// </summary>
+		/// <returns>
+		///     Data context that will be set to <see cref="System.Windows.FrameworkElement.DataContext" /> property.
+		/// </returns>
+		protected virtual object CreateDataContext()
+		{
+			return this;
 		}
 		#endregion
 
@@ -215,7 +242,7 @@ namespace Digillect.Mvvm.UI
 		/// <exception cref="System.ArgumentException"></exception>
 		protected virtual void ParseParameters( IDictionary<string, string> queryString )
 		{
-			var pageType = GetType();
+			Type pageType = GetType();
 
 			foreach( var attribute in pageType.GetCustomAttributes( typeof( ViewParameterAttribute ), true ).Cast<ViewParameterAttribute>() )
 			{
@@ -246,13 +273,30 @@ namespace Digillect.Mvvm.UI
 		#endregion
 
 		#region INotifyPropertyChanged implementation
+
+		#region Events and event raisers
 		/// <summary>
-		/// Occurs when a property value changes.
+		///     Raises the <see cref="PropertyChanged" /> event.
+		/// </summary>
+		/// <param name="e">
+		///     The <see cref="System.ComponentModel.PropertyChangedEventArgs" /> instance containing the event data.
+		/// </param>
+		protected virtual void OnPropertyChanged( PropertyChangedEventArgs e )
+		{
+			if( PropertyChanged != null )
+			{
+				PropertyChanged( this, e );
+			}
+		}
+		#endregion
+
+		/// <summary>
+		///     Occurs when a property value changes.
 		/// </summary>
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		/// <summary>
-		/// Raises the <see cref="PropertyChanged"/> event.
+		///     Raises the <see cref="PropertyChanged" /> event.
 		/// </summary>
 		/// <param name="propertyName">Name of the property.</param>
 #if NET45
@@ -266,29 +310,24 @@ namespace Digillect.Mvvm.UI
 		}
 
 		/// <summary>
-		/// Raises the <see cref="PropertyChanged"/> event.
-		/// </summary>
-		/// <param name="e">The <see cref="System.ComponentModel.PropertyChangedEventArgs"/> instance containing the event data.</param>
-		protected virtual void OnPropertyChanged( PropertyChangedEventArgs e )
-		{
-			if( PropertyChanged != null )
-			{
-				PropertyChanged( this, e );
-			}
-		}
-
-		/// <summary>
-		/// Checks if a property already matches a desired value.  Sets the property and
-		/// notifies listeners only when necessary.
+		///     Checks if a property already matches a desired value.  Sets the property and
+		///     notifies listeners only when necessary.
 		/// </summary>
 		/// <typeparam name="T">Type of the property.</typeparam>
 		/// <param name="location">The variable to set to the specified value.</param>
-		/// <param name="value">The value to which the <paramref name="location"/> parameter is set.</param>
+		/// <param name="value">
+		///     The value to which the <paramref name="location" /> parameter is set.
+		/// </param>
 		/// <param name="propertyName">Name of the property used to notify listeners.</param>
-		/// <returns><c>True</c> if the value has changed; <c>false</c> if the <paramref name="location"/> matches (by equality) the <paramref name="value"/>.</returns>
+		/// <returns>
+		///     <c>True</c> if the value has changed; <c>false</c> if the <paramref name="location" /> matches (by equality) the
+		///     <paramref
+		///         name="value" />
+		///     .
+		/// </returns>
 		/// <remarks>
-		/// <b>.NET 4.5.</b> <paramref name="propertyName"/> is optional and can be provided automatically
-		/// when invoked from compilers which support the <c>CallerMemberName</c> attribute.
+		///     <b>.NET 4.5.</b> <paramref name="propertyName" /> is optional and can be provided automatically
+		///     when invoked from compilers which support the <c>CallerMemberName</c> attribute.
 		/// </remarks>
 		[SuppressMessage( "Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "0#" )]
 #if NET45

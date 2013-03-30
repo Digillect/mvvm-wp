@@ -1,4 +1,25 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿#region Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
+// Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this
+// software and associated documentation files (the "Software"), to deal in the Software
+// without restriction, including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
+// to whom the Software is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all copies or
+// substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+#endregion
+
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Navigation;
 
@@ -34,6 +55,16 @@ namespace Digillect.Mvvm.UI
 
 		#region Phone application initialization
 		// Do not add any additional code to this method
+
+		#region Event handlers
+		private void CompleteInitializePhoneApplication( object sender, NavigationEventArgs e )
+		{
+			RootVisual = RootFrame;
+
+			RootFrame.Navigated -= CompleteInitializePhoneApplication;
+		}
+		#endregion
+
 		private void InitializePhoneApplication()
 		{
 			if( _phoneApplicationInitialized )
@@ -51,13 +82,6 @@ namespace Digillect.Mvvm.UI
 
 			// Ensure we don't initialize again
 			_phoneApplicationInitialized = true;
-		}
-
-		private void CompleteInitializePhoneApplication( object sender, NavigationEventArgs e )
-		{
-			RootVisual = RootFrame;
-
-			RootFrame.Navigated -= CompleteInitializePhoneApplication;
 		}
 
 		/// <summary>
@@ -91,52 +115,65 @@ namespace Digillect.Mvvm.UI
 		}
 
 		/// <summary>
-		/// Creates the instance of application service.
+		///     Creates the instance of application service.
 		/// </summary>
-		/// <returns>New instance of phone application service or <c>null</c> to omit application service registration.</returns>
+		/// <returns>
+		///     New instance of phone application service or <c>null</c> to omit application service registration.
+		/// </returns>
 		protected virtual PhoneApplicationService CreateApplicationService()
 		{
 			return new PhoneApplicationService();
 		}
 
 		/// <summary>
-		/// Handles the application launching.
+		///     Handles the application launching.
 		/// </summary>
-		/// <param name="e">The <see cref="LaunchingEventArgs" /> instance containing the event data.</param>
+		/// <param name="e">
+		///     The <see cref="LaunchingEventArgs" /> instance containing the event data.
+		/// </param>
 		protected virtual void HandleApplicationLaunching( LaunchingEventArgs e )
 		{
 		}
 
 		/// <summary>
-		/// Handles the application activated.
+		///     Handles the application activated.
 		/// </summary>
-		/// <param name="e">The <see cref="ActivatedEventArgs" /> instance containing the event data.</param>
+		/// <param name="e">
+		///     The <see cref="ActivatedEventArgs" /> instance containing the event data.
+		/// </param>
 		protected virtual void HandleApplicationActivated( ActivatedEventArgs e )
 		{
 		}
 
 		/// <summary>
-		/// Handles the application deactivated.
+		///     Handles the application deactivated.
 		/// </summary>
-		/// <param name="e">The <see cref="DeactivatedEventArgs" /> instance containing the event data.</param>
+		/// <param name="e">
+		///     The <see cref="DeactivatedEventArgs" /> instance containing the event data.
+		/// </param>
 		protected virtual void HandleApplicationDeactivated( DeactivatedEventArgs e )
 		{
 		}
 
 		/// <summary>
-		/// Handles the application closing.
+		///     Handles the application closing.
 		/// </summary>
-		/// <param name="e">The <see cref="ClosingEventArgs" /> instance containing the event data.</param>
+		/// <param name="e">
+		///     The <see cref="ClosingEventArgs" /> instance containing the event data.
+		/// </param>
 		protected virtual void HandleApplicationClosing( ClosingEventArgs e )
 		{
 		}
 		#endregion
 
 		#region Navigation
+
+		#region Event handlers
 		private void RootFrame_NavigationFailed( object sender, NavigationFailedEventArgs e )
 		{
 			HandleNavigationFailed( e );
 		}
+		#endregion
 
 		/// <summary>
 		///     Executes when navigation has been failed. Override to provide your own handling.
@@ -152,7 +189,7 @@ namespace Digillect.Mvvm.UI
 		#region IoC Support
 		private void InitializeIoC()
 		{
-			var builder = new ContainerBuilder();
+			ContainerBuilder builder = new ContainerBuilder();
 
 			RegisterServices( builder );
 
@@ -181,10 +218,10 @@ namespace Digillect.Mvvm.UI
 		public ILifetimeScope Scope { get; private set; }
 
 		/// <summary>
-		/// Gets the application service.
+		///     Gets the application service.
 		/// </summary>
 		/// <value>
-		/// The application service.
+		///     The application service.
 		/// </value>
 		public PhoneApplicationService ApplicationService
 		{

@@ -36,6 +36,7 @@
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>1591,1607</NoWarn>
     <DocumentationFile>..\..\target\Debug\bin\wp80\Digillect.Mvvm.WindowsPhone.xml</DocumentationFile>
     <CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
     <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
@@ -84,6 +85,7 @@
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>1591,1607</NoWarn>
     <DocumentationFile>..\..\target\Release\bin\wp80\Digillect.Mvvm.WindowsPhone.xml</DocumentationFile>
     <CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
     <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
@@ -133,6 +135,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <NoWarn>1591,1607</NoWarn>
     <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
     <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
     <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
@@ -172,10 +175,10 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Digillect.ObjectModel">
-      <HintPath>..\..\packages\Digillect.ObjectModel.4.0.0-dev-00006\lib\portable-net45+wp8+win8\Digillect.ObjectModel.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.ObjectModel.4.0.0\lib\portable-net45+wp8+win8\Digillect.ObjectModel.dll</HintPath>
     </Reference>
     <Reference Include="Digillect.Mvvm">
-      <HintPath>..\..\packages\Digillect.Mvvm.2.0.0-dev-00019\lib\portable-net45+wp8+win8\Digillect.Mvvm.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.Mvvm.2.0.0-rc\lib\portable-net45+wp8+win8\Digillect.Mvvm.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -33,6 +33,7 @@
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>1591,1607</NoWarn>
     <DocumentationFile>..\..\target\Debug\bin\wp71\Digillect.Mvvm.WindowsPhone.xml</DocumentationFile>
     <CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
     <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
@@ -80,6 +81,7 @@
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>1591,1607</NoWarn>
     <DocumentationFile>..\..\target\Release\bin\wp71\Digillect.Mvvm.WindowsPhone.xml</DocumentationFile>
     <CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
     <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
@@ -126,6 +128,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <NoWarn>1591,1607</NoWarn>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <RunCodeAnalysis>true</RunCodeAnalysis>
     <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
@@ -166,12 +169,12 @@
       <HintPath>..\..\packages\Autofac.2.6.3.862\lib\SL4-WindowsPhone71\Autofac.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Digillect.Mvvm, Version=2.0.0.0, Culture=neutral, PublicKeyToken=46fb24501f5dffcf, processorArchitecture=MSIL">
+    <Reference Include="Digillect.Mvvm">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Digillect.Mvvm.2.0.0-dev-00019\lib\wp71\Digillect.Mvvm.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.Mvvm.2.0.0-rc\lib\wp71\Digillect.Mvvm.dll</HintPath>
     </Reference>
     <Reference Include="Digillect.ObjectModel">
-      <HintPath>..\..\packages\Digillect.ObjectModel.4.0.0-dev-00006\lib\wp71\Digillect.ObjectModel.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.ObjectModel.4.0.0\lib\wp71\Digillect.ObjectModel.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Contracts">
       <HintPath>C:\Program Files (x86)\Microsoft\Contracts\PublicAssemblies\Silverlight3\Microsoft.Contracts.dll</HintPath>

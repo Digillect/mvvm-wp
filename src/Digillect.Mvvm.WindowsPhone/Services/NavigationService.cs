@@ -1,6 +1,26 @@
-﻿using System;
+﻿#region Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
+// Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this
+// software and associated documentation files (the "Software"), to deal in the Software
+// without restriction, including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
+// to whom the Software is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all copies or
+// substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+#endregion
+
+using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Windows;
 using System.Windows.Navigation;
@@ -45,26 +65,26 @@ namespace Digillect.Mvvm.Services
 		public void Start()
 		{
 			string rootNamespace = _viewDiscoveryService.GetRootNamespace();
-			IEnumerable<Type> viewTypes = _viewDiscoveryService.GetViewTypes();
+			var viewTypes = _viewDiscoveryService.GetViewTypes();
 
-			foreach( Type type in viewTypes )
+			foreach( var type in viewTypes )
 			{
 				string typeName = type.FullName.StartsWith( rootNamespace ) ? type.FullName.Substring( rootNamespace.Length + 1 ) : type.FullName;
 				ViewAttribute viewAttribute = type.GetCustomAttributes( typeof( ViewAttribute ), true ).Cast<ViewAttribute>().First();
 				ViewPathAttribute viewPathAttribute = type.GetCustomAttributes( typeof( ViewPathAttribute ), false ).Cast<ViewPathAttribute>().FirstOrDefault();
 				string viewName = viewAttribute.Name ?? type.Name;
 
-				var descriptor = new ViewDescriptor
-									{
-										Name = viewName,
-										Type = type,
-										Path = viewPathAttribute == null ? typeName.Replace( '.', '/' ) + ".xaml" : viewPathAttribute.Path,
-									};
+				ViewDescriptor descriptor = new ViewDescriptor
+												{
+													Name = viewName,
+													Type = type,
+													Path = viewPathAttribute == null ? typeName.Replace( '.', '/' ) + ".xaml" : viewPathAttribute.Path,
+												};
 
 				_views.Add( viewName, descriptor );
 			}
 
-			var app = (PhoneApplication) Application.Current;
+			PhoneApplication app = (PhoneApplication) Application.Current;
 
 			app.RootFrame.Navigated += RootFrame_Navigated;
 		}
@@ -89,9 +109,9 @@ namespace Digillect.Mvvm.Services
 		/// <exception cref="System.ArgumentException">viewName</exception>
 		public async void Navigate( string viewName, Parameters parameters )
 		{
-			var context = new NavigationContext { ViewName = viewName, Parameters = parameters };
+			NavigationContext context = new NavigationContext { ViewName = viewName, Parameters = parameters };
 
-			foreach( INavigationHandler handler in _navigationHandlers )
+			foreach( var handler in _navigationHandlers )
 			{
 				if( await handler.HandleNavigation( context ) )
 				{
@@ -111,7 +131,7 @@ namespace Digillect.Mvvm.Services
 				throw new ArgumentException( String.Format( "View with name '{0}' is not registered.", context.ViewName ), "viewName" );
 			}
 
-			var uri = new Uri( string.Format( "/{0}{1}", descriptor.Path, context.Parameters != null ? "?" + string.Join( "&", context.Parameters.Select( p => p.Key + "=" + ParametersSerializer.EncodeValue( p.Value ) ) ) : string.Empty ), UriKind.Relative );
+			Uri uri = new Uri( string.Format( "/{0}{1}", descriptor.Path, context.Parameters != null ? "?" + string.Join( "&", context.Parameters.Select( p => p.Key + "=" + ParametersSerializer.EncodeValue( p.Value ) ) ) : string.Empty ), UriKind.Relative );
 
 			if( context.DisplaceCurrentView )
 			{
@@ -141,8 +161,8 @@ namespace Digillect.Mvvm.Services
 
 		public object CreateSnapshot( Action<object> guard, object tag )
 		{
-			var app = (PhoneApplication) Application.Current;
-			var snapshot = new NavigationSnapshot { Uri = app.RootFrame.CurrentSource, Guard = guard, Tag = tag };
+			PhoneApplication app = (PhoneApplication) Application.Current;
+			NavigationSnapshot snapshot = new NavigationSnapshot { Uri = app.RootFrame.CurrentSource, Guard = guard, Tag = tag };
 
 			_navigationSnapshots.Add( snapshot );
 
@@ -156,7 +176,7 @@ namespace Digillect.Mvvm.Services
 
 		public bool RollbackSnapshot( object snapshotId, string viewName, Parameters parameters )
 		{
-			var snapshot = snapshotId as NavigationSnapshot;
+			NavigationSnapshot snapshot = snapshotId as NavigationSnapshot;
 
 			if( snapshot == null )
 			{
@@ -164,11 +184,11 @@ namespace Digillect.Mvvm.Services
 			}
 
 			// Rewind journal
-			var app = (PhoneApplication) Application.Current;
+			PhoneApplication app = (PhoneApplication) Application.Current;
 			int numberOfEntriesToRemove = 0;
 			bool sourceUriIsFoundInBackStack = false;
 
-			foreach( JournalEntry entry in app.RootFrame.BackStack )
+			foreach( var entry in app.RootFrame.BackStack )
 			{
 				if( entry.Source == snapshot.Uri )
 				{
@@ -208,7 +228,7 @@ namespace Digillect.Mvvm.Services
 		#region Event handlers
 		private void RootFrame_Navigated( object sender, NavigationEventArgs e )
 		{
-			var app = (PhoneApplication) Application.Current;
+			PhoneApplication app = (PhoneApplication) Application.Current;
 
 			if( !_initialized )
 			{
@@ -234,9 +254,9 @@ namespace Digillect.Mvvm.Services
 		{
 			if( _navigationSnapshots.Count > 0 )
 			{
-				List<NavigationSnapshot> snapshots = _navigationSnapshots.Where( snapshot => snapshot.Uri == uri ).ToList();
+				var snapshots = _navigationSnapshots.Where( snapshot => snapshot.Uri == uri ).ToList();
 
-				foreach( NavigationSnapshot snapshot in snapshots )
+				foreach( var snapshot in snapshots )
 				{
 					if( snapshot.Guard != null )
 					{
@@ -250,7 +270,7 @@ namespace Digillect.Mvvm.Services
 
 		private void CompleteInitialization( NavigationEventArgs e )
 		{
-			var app = (PhoneApplication) Application.Current;
+			PhoneApplication app = (PhoneApplication) Application.Current;
 
 			_initialized = true;
 

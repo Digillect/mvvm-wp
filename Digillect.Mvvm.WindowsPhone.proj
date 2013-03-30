@@ -2,7 +2,8 @@
 
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
-		<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+		<BuildToolsVersion>1.2.0</BuildToolsVersion>
+		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 
 		<BuildPath>target\$(Configuration)\bin</BuildPath>
 		<OutputPath>target\$(Configuration)\packages</OutputPath>
@@ -15,16 +16,17 @@
 		<LibWP80 Include="$(BuildPath)\wp80\**\Digillect.Mvvm.WindowsPhone.*" Exclude="$(ExcludeList)"/>
 	</ItemGroup>
 
-	<Import Project="packages\Digillect.Build.Tools.1.1.1\tools\NuGet.Packaging.targets"/>
+	<Import Project="packages\Digillect.Build.Tools.$(BuildToolsVersion)\tools\NuGet.Packaging.targets"/>
 
 	<Target Name="TransformPackageVersion">
 		<PropertyGroup>
-			<_Major>$([System.Text.RegularExpressions.Regex]::Replace( $(PackageVersion), "(\d+.\d+.\d+)\.(\d+)", "$1" ))</_Major>
-			<_Build>$([System.Text.RegularExpressions.Regex]::Replace( $(PackageVersion), "(\d+.\d+.\d+)\.(\d+)", "$2" ))</_Build>
-			<_Final>$([System.String]::Format( "{0}-dev-{1:00000}", $(_Major), $([MSBuild]::Add( $(_Build), 0 )) ))</_Final>
+			<_Major>$([System.Text.RegularExpressions.Regex]::Replace($(PackageVersion), "(\d+.\d+.\d+)\.\d+.*", "$1"))</_Major>
+			<_Build>$([System.Text.RegularExpressions.Regex]::Replace($(PackageVersion), "\d+.\d+.\d+\.(\d+).*", "$1"))</_Build>
+			<_Suffix>$([System.Text.RegularExpressions.Regex]::Replace($(PackageVersion), "\d+.\d+.\d+\.\d+(.*)", "$1"))</_Suffix>
+			<_FormattedBuildNumber>$([System.String]::Format( "{0:00000}", $([MSBuild]::Add( $(_Build), 0 )) ))</_FormattedBuildNumber>
 
-			<PackageVersion Condition=" '$(BuildNumber)' != '' ">$([System.Text.RegularExpressions.Regex]::Replace( $(PackageVersion), "(\d+\.\d+\.\d+\.\d+)", $(_Final) ))</PackageVersion>
-			<PackageVersion Condition=" '$(BuildNumber)' == '' ">$([System.Text.RegularExpressions.Regex]::Replace( $(PackageVersion), "(\d+\.\d+\.\d+\.\d+)", "$(_Major)" ))</PackageVersion>
+			<PackageVersion>$(_Major)$(_Suffix)</PackageVersion>
+			<PackageVersion Condition=" '$(BranchName)' != '' And '$(BranchName)' != 'master' ">$(PackageVersion)-$(BranchName)-$(_FormattedBuildNumber)</PackageVersion>
 		</PropertyGroup>
 	</Target>
 </Project>
