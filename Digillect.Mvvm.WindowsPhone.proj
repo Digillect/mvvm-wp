@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<BuildToolsVersion>1.2.0</BuildToolsVersion>
+		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+
+		<BuildPath>target\$(Configuration)\bin</BuildPath>
+		<OutputPath>target\$(Configuration)\packages</OutputPath>
+		<VersionAssembly>$(BuildPath)\wp80\Digillect.Mvvm.WindowsPhone.dll</VersionAssembly>
+		<ExcludeList>$(BuildPath)\**\*.xml.old;$(BuildPath)\**\*.noReferenceAssembly</ExcludeList>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<LibWP71 Include="$(BuildPath)\wp71\**\Digillect.Mvvm.WindowsPhone.*" Exclude="$(ExcludeList)"/>
+		<LibWP80 Include="$(BuildPath)\wp80\**\Digillect.Mvvm.WindowsPhone.*" Exclude="$(ExcludeList)"/>
+	</ItemGroup>
+
+	<Import Project="packages\Digillect.Build.Tools.$(BuildToolsVersion)\tools\NuGet.Packaging.targets"/>
+
+	<Target Name="TransformPackageVersion">
+		<PropertyGroup>
+			<_Major>$([System.Text.RegularExpressions.Regex]::Replace($(PackageVersion), "(\d+.\d+.\d+)\.\d+.*", "$1"))</_Major>
+			<_Build>$([System.Text.RegularExpressions.Regex]::Replace($(PackageVersion), "\d+.\d+.\d+\.(\d+).*", "$1"))</_Build>
+			<_Suffix>$([System.Text.RegularExpressions.Regex]::Replace($(PackageVersion), "\d+.\d+.\d+\.\d+(.*)", "$1"))</_Suffix>
+			<_FormattedBuildNumber>$([System.String]::Format( "{0:00000}", $([MSBuild]::Add( $(_Build), 0 )) ))</_FormattedBuildNumber>
+
+			<PackageVersion>$(_Major)$(_Suffix)</PackageVersion>
+			<PackageVersion Condition=" '$(BranchName)' != '' And '$(BranchName)' != 'master' ">$(PackageVersion)-$(BranchName)-$(_FormattedBuildNumber)</PackageVersion>
+		</PropertyGroup>
+	</Target>
+</Project>
