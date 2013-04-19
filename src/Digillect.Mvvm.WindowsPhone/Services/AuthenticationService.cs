@@ -165,7 +165,12 @@ namespace Digillect.Mvvm.Services
 		/// </summary>
 		public Task StartAuthentication()
 		{
-			return StartAuthentication( null, null );
+			return StartAuthentication( null, null, null );
+		}
+
+		public Task StartAuthentication( Action performWhenAuthenticated )
+		{
+			return StartAuthentication( null, null, performWhenAuthenticated );
 		}
 
 		/// <summary>
@@ -173,7 +178,12 @@ namespace Digillect.Mvvm.Services
 		/// </summary>
 		/// <param name="initialViewName">Name of the initial view in the authentication flow.</param>
 		/// <param name="parameters">Parameters for the initial view.</param>
-		public async Task StartAuthentication( string initialViewName, Parameters parameters )
+		public Task StartAuthentication( string initialViewName, Parameters parameters )
+		{
+			return StartAuthentication( initialViewName, parameters, null );
+		}
+
+		private async Task StartAuthentication( string initialViewName, Parameters parameters, Action performWhenAuthenticated )
 		{
 			if( _authenticationServiceContext != null )
 			{
@@ -181,8 +191,23 @@ namespace Digillect.Mvvm.Services
 
 				if( !authenticated )
 				{
+					Action<object> guard = NavigationGuard;
+
+					if( performWhenAuthenticated != null )
+					{
+						guard = async o =>
+						{
+							NavigationGuard( o );
+
+							if( await _authenticationServiceContext.IsAuthenticated() )
+							{
+								performWhenAuthenticated();
+							}
+						};
+					}
+
 					_targetContext = null;
-					_snapshotId = _navigationService.CreateSnapshot( NavigationGuard );
+					_snapshotId = _navigationService.CreateSnapshot( guard );
 
 					if( string.IsNullOrEmpty( initialViewName ) )
 					{
@@ -191,6 +216,13 @@ namespace Digillect.Mvvm.Services
 					}
 
 					_navigationService.Navigate( initialViewName, parameters );
+				}
+				else
+				{
+					if( performWhenAuthenticated != null )
+					{
+						performWhenAuthenticated();
+					}
 				}
 			}
 		}
