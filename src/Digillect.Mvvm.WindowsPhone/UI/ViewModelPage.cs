@@ -59,6 +59,25 @@ namespace Digillect.Mvvm.UI
 		}
 		#endregion
 
+		#region Events and event raisers
+		/// <summary>
+		///     Called when data loading process successfully completes.
+		/// </summary>
+		/// <param name="session">The session.</param>
+		protected virtual void OnDataLoadComplete( Session session )
+		{
+		}
+
+		/// <summary>
+		///     Called when data loading process fails.
+		/// </summary>
+		/// <param name="session">Session that failed to load.</param>
+		/// <param name="ex">Reason of the failure.</param>
+		protected virtual void OnDataLoadFailed( Session session, Exception ex )
+		{
+		}
+		#endregion
+
 		#region Page lifecycle
 
 		#region Events and event raisers
@@ -146,26 +165,6 @@ namespace Digillect.Mvvm.UI
 		#endregion
 
 		#region Data Loading
-
-		#region Events and event raisers
-		/// <summary>
-		///     Called when data loading process successfully completes.
-		/// </summary>
-		/// <param name="session">The session.</param>
-		protected virtual void OnDataLoadComplete( Session session )
-		{
-		}
-
-		/// <summary>
-		///     Called when data loading process fails.
-		/// </summary>
-		/// <param name="session">Session that failed to load.</param>
-		/// <param name="ex">Reason of the failure.</param>
-		protected virtual void OnDataLoadFailed( Session session, Exception ex )
-		{
-		}
-		#endregion
-
 		/// <summary>
 		///     Starts the process of loading data.
 		/// </summary>
