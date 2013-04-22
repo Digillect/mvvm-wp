@@ -19,6 +19,7 @@
 // IN THE SOFTWARE.
 #endregion
 
+using System;
 using System.Threading.Tasks;
 
 namespace Digillect.Mvvm.Services
@@ -38,17 +39,11 @@ namespace Digillect.Mvvm.Services
 		bool AuthenticationInProgress { get; }
 		#endregion
 
+		#region Public methods
 		/// <summary>
-		///     Starts the authentication.
+		///     Cancels the authentication.
 		/// </summary>
-		Task StartAuthentication();
-
-		/// <summary>
-		///     Starts the authentication.
-		/// </summary>
-		/// <param name="initialViewName">Name of the initial view in the authentication flow.</param>
-		/// <param name="parameters">Parameters for the initial view.</param>
-		Task StartAuthentication( string initialViewName, Parameters parameters );
+		void CancelAuthentication();
 
 		/// <summary>
 		///     Completes the authentication.
@@ -56,8 +51,22 @@ namespace Digillect.Mvvm.Services
 		void CompleteAuthentication();
 
 		/// <summary>
-		///     Cancels the authentication.
+		///     Starts the authentication.
 		/// </summary>
-		void CancelAuthentication();
+		Task StartAuthentication();
+
+		/// <summary>
+		///     Starts the authentication and performs an action when authentication completes.
+		/// </summary>
+		/// <param name="performWhenAuthenticated">Action to perform when authentication successfully completes.</param>
+		Task StartAuthentication( Action performWhenAuthenticated );
+
+		/// <summary>
+		///     Starts the authentication.
+		/// </summary>
+		/// <param name="initialViewName">Name of the initial view in the authentication flow.</param>
+		/// <param name="parameters">Parameters for the initial view.</param>
+		Task StartAuthentication( string initialViewName, Parameters parameters );
+		#endregion
 	}
 }

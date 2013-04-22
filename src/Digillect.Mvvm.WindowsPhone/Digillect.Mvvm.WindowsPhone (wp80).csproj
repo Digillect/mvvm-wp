@@ -178,7 +178,7 @@
       <HintPath>..\..\packages\Digillect.ObjectModel.4.0.0\lib\portable-net45+wp8+win8\Digillect.ObjectModel.dll</HintPath>
     </Reference>
     <Reference Include="Digillect.Mvvm">
-      <HintPath>..\..\packages\Digillect.Mvvm.2.0.0-rc\lib\portable-net45+wp8+win8\Digillect.Mvvm.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.Mvvm.2.0.0\lib\portable-net45+wp8+win8\Digillect.Mvvm.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
