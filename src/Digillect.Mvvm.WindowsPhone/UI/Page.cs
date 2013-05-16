@@ -45,14 +45,14 @@ namespace Digillect.Mvvm.UI
 	{
 		private const string RessurectionMark = "__mark$mark__";
 
-		private readonly Parameters _viewParameters = new Parameters();
+		private XParameters _viewParameters = XParameters.Empty;
 		private ILifetimeScope _scope;
 
 		#region Constructor
 		/// <summary>
 		///     Initializes a new instance of the <see cref="Page" /> class.
 		/// </summary>
-		public Page()
+		protected Page()
 		{
 			Language = XmlLanguage.GetLanguage( Thread.CurrentThread.CurrentCulture.Name );
 		}
@@ -66,13 +66,11 @@ namespace Digillect.Mvvm.UI
 		{
 			get { return _scope; }
 		}
-		#endregion
 
-		#region Public Properties
 		/// <summary>
 		///     Gets the parameters passed to this view.
 		/// </summary>
-		protected Parameters ViewParameters
+		protected XParameters ViewParameters
 		{
 			get { return _viewParameters; }
 		}
@@ -231,31 +229,42 @@ namespace Digillect.Mvvm.UI
 		private void ParseParameters()
 		{
 			var queryString = new Dictionary<string, string>( NavigationContext.QueryString, StringComparer.OrdinalIgnoreCase );
+			var builder = _viewParameters.ToBuilder();
 
-			ParseParameters( queryString );
+			ParseParameters( queryString, builder );
+
+			_viewParameters = builder.ToImmutable();
 		}
 
 		/// <summary>
 		///     Parses the parameters.
 		/// </summary>
 		/// <param name="queryString">The query string.</param>
+		/// <param name="builder">Parameters builder to add parameters to.</param>
 		/// <exception cref="System.ArgumentException"></exception>
-		protected virtual void ParseParameters( IDictionary<string, string> queryString )
+		protected virtual void ParseParameters( IDictionary<string, string> queryString, XParameters.Builder builder )
 		{
 			Type pageType = GetType();
 
 			foreach( var attribute in pageType.GetCustomAttributes( typeof( ViewParameterAttribute ), true ).Cast<ViewParameterAttribute>() )
 			{
-				string stringValue = null;
+				string stringValue;
 				object parameterValue = null;
 
 				if( queryString.TryGetValue( attribute.ParameterName, out stringValue ) )
 				{
-					parameterValue = ParametersSerializer.DecodeValue( stringValue, attribute.ParameterType );
+					try
+					{
+						parameterValue = ParametersSerializer.DecodeValue( stringValue, attribute.ParameterType );
+					}
+					catch( Exception ex )
+					{
+						throw new ViewParameterException( string.Format( "View '{0}' can not parse parameter '{1}' of type '{2}'.", pageType, attribute.ParameterName, attribute.ParameterType ), ex );
+					}
 
 					if( parameterValue != null )
 					{
-						_viewParameters.Add( attribute.ParameterName, parameterValue );
+						builder.AddValue( attribute.ParameterName, parameterValue );
 					}
 
 					queryString.Remove( attribute.ParameterName );
@@ -265,7 +274,7 @@ namespace Digillect.Mvvm.UI
 				{
 					if( attribute.Required )
 					{
-						throw new ArgumentException( string.Format( "Page {0} requires argument {1} of type {2}.", pageType, attribute.ParameterName, attribute.ParameterType ), attribute.ParameterName );
+						throw new ViewParameterException( string.Format( "View '{0}' requires parameter '{1}' of type '{2}' but it was not passed.", pageType, attribute.ParameterName, attribute.ParameterType ) );
 					}
 				}
 			}

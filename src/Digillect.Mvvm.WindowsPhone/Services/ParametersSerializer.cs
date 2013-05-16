@@ -22,6 +22,8 @@
 using System;
 using System.Globalization;
 
+using Digillect.Runtime.Serialization;
+
 namespace Digillect.Mvvm.Services
 {
 	/// <summary>
@@ -29,8 +31,6 @@ namespace Digillect.Mvvm.Services
 	/// </summary>
 	public static class ParametersSerializer
 	{
-		private const string DateTimeFormatString = "yyyy-MM-ddThh:mm:sszzz";
-
 		/// <summary>
 		///     Encodes the value to string representation.
 		/// </summary>
@@ -48,17 +48,13 @@ namespace Digillect.Mvvm.Services
 
 			if( valueType == typeof( DateTime ) )
 			{
-				DateTime dtValue = (DateTime) value;
-
-				formattedValue = dtValue.ToString( DateTimeFormatString, CultureInfo.InvariantCulture );
+				formattedValue = ((DateTime) value).ToString( "o", DateTimeFormatInfo.InvariantInfo );
 			}
 			else
 			{
 				if( valueType == typeof( DateTimeOffset ) )
 				{
-					DateTimeOffset dtValue = (DateTimeOffset) value;
-
-					formattedValue = dtValue.ToString( DateTimeFormatString, CultureInfo.InvariantCulture );
+					formattedValue = ((DateTimeOffset) value).ToString( "o", DateTimeFormatInfo.InvariantInfo );
 				}
 				else if( valueType == typeof( XKey ) )
 				{
@@ -86,29 +82,22 @@ namespace Digillect.Mvvm.Services
 				return stringValue;
 			}
 
-			try
+			if( targetType == typeof( DateTime ) )
 			{
-				if( targetType == typeof( DateTime ) )
-				{
-					return DateTime.ParseExact( stringValue, DateTimeFormatString, CultureInfo.InvariantCulture );
-				}
-
-				if( targetType == typeof( DateTimeOffset ) )
-				{
-					return DateTimeOffset.ParseExact( stringValue, DateTimeFormatString, CultureInfo.InvariantCulture );
-				}
-
-				if( targetType == typeof( XKey ) )
-				{
-					return XKeySerializer.Deserialize( stringValue );
-				}
-
-				return Convert.ChangeType( stringValue, targetType, CultureInfo.InvariantCulture );
+				return DateTime.ParseExact( stringValue, "o", DateTimeFormatInfo.InvariantInfo );
 			}
-			catch( Exception )
+
+			if( targetType == typeof( DateTimeOffset ) )
 			{
-				return null;
+				return DateTimeOffset.ParseExact( stringValue, "o", DateTimeFormatInfo.InvariantInfo );
 			}
+
+			if( targetType == typeof( XKey ) )
+			{
+				return XKeySerializer.Deserialize( stringValue );
+			}
+
+			return Convert.ChangeType( stringValue, targetType, CultureInfo.InvariantCulture );
 		}
 	}
 }

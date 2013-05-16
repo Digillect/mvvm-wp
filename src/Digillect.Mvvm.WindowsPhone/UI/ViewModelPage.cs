@@ -59,7 +59,7 @@ namespace Digillect.Mvvm.UI
 		}
 		#endregion
 
-		#region Events and event raisers
+		#region Page lifecycle
 		/// <summary>
 		///     Called when data loading process successfully completes.
 		/// </summary>
@@ -76,11 +76,7 @@ namespace Digillect.Mvvm.UI
 		protected virtual void OnDataLoadFailed( Session session, Exception ex )
 		{
 		}
-		#endregion
 
-		#region Page lifecycle
-
-		#region Events and event raisers
 		/// <summary>
 		///     This method is called when page is visited for the very first time. You should perform
 		///     initialization and create one-time initialized resources here.
@@ -141,6 +137,7 @@ namespace Digillect.Mvvm.UI
 		}
 		#endregion
 
+		#region ViewModel creation
 		/// <summary>
 		///     Creates the page model.
 		/// </summary>
@@ -177,7 +174,7 @@ namespace Digillect.Mvvm.UI
 		{
 			if( reason != DataLoadReason.Awakening || !_dataIsLoaded )
 			{
-				Session session = _session = CreateDataSession( reason );
+				var session = _session = CreateDataSession( reason );
 
 				if( session == null )
 				{
@@ -213,7 +210,7 @@ namespace Digillect.Mvvm.UI
 		/// <returns>Session that should be used to load page data.</returns>
 		protected virtual Session CreateDataSession( DataLoadReason reason )
 		{
-			return ViewModel.CreateSession();
+			return ViewModel.CreateSession( ViewParameters );
 		}
 
 		/// <summary>

@@ -22,6 +22,8 @@
 using System;
 using System.Collections.Generic;
 
+using Digillect.Runtime.Serialization;
+
 namespace Digillect.Mvvm.UI
 {
 	/// <summary>
@@ -40,39 +42,33 @@ namespace Digillect.Mvvm.UI
 		where TEntity : XObject
 		where TViewModel : EntityViewModel<TEntity>
 	{
-		/// <summary>
-		///     This method is called to create data loading session.
-		/// </summary>
-		/// <param name="reason">The reason to load page data.</param>
-		/// <returns>Session that should be used to load page data.</returns>
-		protected override Session CreateDataSession( DataLoadReason reason )
-		{
-			return ViewModel.CreateSession( ViewParameters.Get<XKey>( "Key" ) );
-		}
+		private const string KeyParameter = "Key";
 
-		/// <summary>
-		///     Parses the parameters.
-		/// </summary>
-		/// <param name="queryString">The query string.</param>
-		/// <exception cref="System.ArgumentException">Entity identifier is not passed in query string.</exception>
-		protected override void ParseParameters( IDictionary<string, string> queryString )
+		protected override void ParseParameters( IDictionary<string, string> queryString, XParameters.Builder builder )
 		{
-			base.ParseParameters( queryString );
+			base.ParseParameters( queryString, builder );
 
 			string stringKey;
 
-			if( queryString.TryGetValue( "Key", out stringKey ) )
+			if( queryString.TryGetValue( KeyParameter, out stringKey ) )
 			{
 				if( !string.IsNullOrEmpty( stringKey ) )
 				{
-					ViewParameters.Add( "Key", XKeySerializer.Deserialize( stringKey ) );
+					try
+					{
+						builder.AddValue( KeyParameter, XKeySerializer.Deserialize( stringKey ) );
+					}
+					catch( Exception ex )
+					{
+						throw new ViewParameterException( string.Format( "View '{0}' can not parse parameter '{1}' of type 'Digillect.XKey'.", GetType(), KeyParameter ), ex );
+					}
 				}
 
-				queryString.Remove( "Key" );
+				queryString.Remove( KeyParameter );
 			}
 			else
 			{
-				throw new ArgumentException( "Entity key is not passed in query string.", "Key" );
+				throw new ViewParameterException( string.Format( "View '{0}' requires parameter '{1}' of type 'Digillect.XKey' but it was not passed.", GetType(), KeyParameter ) );
 			}
 		}
 	}

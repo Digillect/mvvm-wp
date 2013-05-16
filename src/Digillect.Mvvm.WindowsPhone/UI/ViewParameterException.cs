@@ -20,54 +20,37 @@
 #endregion
 
 using System;
-using System.Diagnostics.Contracts;
 
-namespace Digillect.Mvvm.Services
+namespace Digillect.Mvvm.UI
 {
-	[ContractClassFor( typeof( IWindowsPhoneNavigationService ) )]
-	internal abstract class IWindowsPhoneNavigationServiceContract : IWindowsPhoneNavigationService
+	public class ViewParameterException : Exception
 	{
-		#region Implementation of IWindowsPhoneNavigationService
-		public object CreateSnapshot()
+		#region Constructors/Disposer
+		/// <summary>
+		///     Initializes a new instance of the <see cref="T:System.Exception" /> class.
+		/// </summary>
+		public ViewParameterException()
 		{
-			Contract.Ensures( Contract.Result<object>() != null );
-
-			return null;
 		}
 
-		public object CreateSnapshot( Action<object> guard )
+		/// <summary>
+		///     Initializes a new instance of the <see cref="T:System.Exception" /> class with a specified error message.
+		/// </summary>
+		/// <param name="message">The message that describes the error. </param>
+		public ViewParameterException( string message )
+			: base( message )
 		{
-			Contract.Ensures( Contract.Result<object>() != null );
-
-			return null;
 		}
 
-		public object CreateSnapshot( Action<object> guard, object tag )
+		/// <summary>
+		///     Initializes a new instance of the <see cref="T:System.Exception" /> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+		/// </summary>
+		/// <param name="message">The error message that explains the reason for the exception. </param>
+		/// <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified. </param>
+		public ViewParameterException( string message, Exception innerException )
+			: base( message, innerException )
 		{
-			Contract.Ensures( Contract.Result<object>() != null );
-
-			return null;
 		}
-
-		public bool RollbackSnapshot( object snapshotId )
-		{
-			Contract.Requires<ArgumentNullException>( snapshotId != null );
-
-			return false;
-		}
-
-		public bool RollbackSnapshot( object snapshotId, string viewName, XParameters parameters )
-		{
-			Contract.Requires<ArgumentNullException>( snapshotId != null );
-
-			return false;
-		}
-		#endregion
-
-		#region Implementation of INavigationService
-		public abstract void Navigate( string viewName );
-		public abstract void Navigate( string viewName, XParameters parameters );
-		public abstract void GoBack();
 		#endregion
 	}
 }

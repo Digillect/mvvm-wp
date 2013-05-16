@@ -3,7 +3,7 @@
 <package>
 	<metadata>
 		<id>Digillect.Mvvm.WindowsPhone</id>
-		<version>2.0.0.0</version>
+		<version>$version$</version>
 		<authors>Gregory Nickonov, Andrew Nefedkin</authors>
 		<owners>Gregory Nickonov, Andrew Nefedkin</owners>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -13,12 +13,12 @@
 		<tags>digillect mvvm windowsphone wp8 wp71 wp75</tags>
 		<dependencies>
 			<group targetFramework="wp71">
-				<dependency id="Digillect.ObjectModel" version="4.0.0"/>
-				<dependency id="Digillect.Mvvm" version="2.0.0"/>
+				<dependency id="Digillect.ObjectModel" version="4.1.0-dev-00006"/>
+				<dependency id="Digillect.Mvvm" version="2.1.0-dev-00006"/>
 			</group>
 			<group targetFramework="wp80">
-				<dependency id="Digillect.ObjectModel" version="4.0.0"/>
-				<dependency id="Digillect.Mvvm" version="2.0.0"/>
+				<dependency id="Digillect.ObjectModel" version="4.1.0-dev-00006"/>
+				<dependency id="Digillect.Mvvm" version="2.1.0-dev-00006"/>
 			</group>
 		</dependencies>
 		<references>

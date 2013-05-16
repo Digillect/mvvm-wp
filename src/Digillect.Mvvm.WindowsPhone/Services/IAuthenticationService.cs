@@ -66,7 +66,7 @@ namespace Digillect.Mvvm.Services
 		/// </summary>
 		/// <param name="initialViewName">Name of the initial view in the authentication flow.</param>
 		/// <param name="parameters">Parameters for the initial view.</param>
-		Task StartAuthentication( string initialViewName, Parameters parameters );
+		Task StartAuthentication( string initialViewName, XParameters parameters );
 		#endregion
 	}
 }

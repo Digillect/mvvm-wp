@@ -64,27 +64,27 @@ namespace Digillect.Mvvm.Services
 		/// </summary>
 		public void Start()
 		{
-			string rootNamespace = _viewDiscoveryService.GetRootNamespace();
+			var rootNamespace = _viewDiscoveryService.GetRootNamespace();
 			var viewTypes = _viewDiscoveryService.GetViewTypes();
 
 			foreach( var type in viewTypes )
 			{
-				string typeName = type.FullName.StartsWith( rootNamespace ) ? type.FullName.Substring( rootNamespace.Length + 1 ) : type.FullName;
-				ViewAttribute viewAttribute = type.GetCustomAttributes( typeof( ViewAttribute ), true ).Cast<ViewAttribute>().First();
-				ViewPathAttribute viewPathAttribute = type.GetCustomAttributes( typeof( ViewPathAttribute ), false ).Cast<ViewPathAttribute>().FirstOrDefault();
-				string viewName = viewAttribute.Name ?? type.Name;
+				var typeName = type.FullName.StartsWith( rootNamespace ) ? type.FullName.Substring( rootNamespace.Length + 1 ) : type.FullName;
+				var viewAttribute = type.GetCustomAttributes( typeof( ViewAttribute ), true ).Cast<ViewAttribute>().First();
+				var viewPathAttribute = type.GetCustomAttributes( typeof( ViewPathAttribute ), false ).Cast<ViewPathAttribute>().FirstOrDefault();
+				var viewName = viewAttribute.Name ?? type.Name;
 
-				ViewDescriptor descriptor = new ViewDescriptor
-												{
-													Name = viewName,
-													Type = type,
-													Path = viewPathAttribute == null ? typeName.Replace( '.', '/' ) + ".xaml" : viewPathAttribute.Path,
-												};
+				var descriptor = new ViewDescriptor
+					{
+						Name = viewName,
+						Type = type,
+						Path = viewPathAttribute == null ? typeName.Replace( '.', '/' ) + ".xaml" : viewPathAttribute.Path,
+					};
 
 				_views.Add( viewName, descriptor );
 			}
 
-			PhoneApplication app = (PhoneApplication) Application.Current;
+			var app = (PhoneApplication) Application.Current;
 
 			app.RootFrame.Navigated += RootFrame_Navigated;
 		}
@@ -98,47 +98,6 @@ namespace Digillect.Mvvm.Services
 		public void Navigate( string viewName )
 		{
 			Navigate( viewName, null );
-		}
-
-		/// <summary>
-		///     Navigates to the specified view with parameters.
-		/// </summary>
-		/// <param name="viewName">Name of the view.</param>
-		/// <param name="parameters">The parameters.</param>
-		/// <exception cref="System.ArgumentNullException">viewName</exception>
-		/// <exception cref="System.ArgumentException">viewName</exception>
-		public async void Navigate( string viewName, Parameters parameters )
-		{
-			NavigationContext context = new NavigationContext { ViewName = viewName, Parameters = parameters };
-
-			foreach( var handler in _navigationHandlers )
-			{
-				if( await handler.HandleNavigation( context ) )
-				{
-					break;
-				}
-			}
-
-			if( context.Cancel )
-			{
-				return;
-			}
-
-			ViewDescriptor descriptor;
-
-			if( !_views.TryGetValue( context.ViewName, out descriptor ) )
-			{
-				throw new ArgumentException( String.Format( "View with name '{0}' is not registered.", context.ViewName ), "viewName" );
-			}
-
-			Uri uri = new Uri( string.Format( "/{0}{1}", descriptor.Path, context.Parameters != null ? "?" + string.Join( "&", context.Parameters.Select( p => p.Key + "=" + ParametersSerializer.EncodeValue( p.Value ) ) ) : string.Empty ), UriKind.Relative );
-
-			if( context.DisplaceCurrentView )
-			{
-				_removeLastJournalEntry = true;
-			}
-
-			((PhoneApplication) Application.Current).RootFrame.Navigate( uri );
 		}
 
 		/// <summary>
@@ -161,8 +120,8 @@ namespace Digillect.Mvvm.Services
 
 		public object CreateSnapshot( Action<object> guard, object tag )
 		{
-			PhoneApplication app = (PhoneApplication) Application.Current;
-			NavigationSnapshot snapshot = new NavigationSnapshot { Uri = app.RootFrame.CurrentSource, Guard = guard, Tag = tag };
+			var app = (PhoneApplication) Application.Current;
+			var snapshot = new NavigationSnapshot { Uri = app.RootFrame.CurrentSource, Guard = guard, Tag = tag };
 
 			_navigationSnapshots.Add( snapshot );
 
@@ -174,19 +133,60 @@ namespace Digillect.Mvvm.Services
 			return RollbackSnapshot( snapshotId, null, null );
 		}
 
-		public bool RollbackSnapshot( object snapshotId, string viewName, Parameters parameters )
+		/// <summary>
+		///     Navigates to the specified view with parameters.
+		/// </summary>
+		/// <param name="viewName">Name of the view.</param>
+		/// <param name="parameters">The parameters.</param>
+		/// <exception cref="System.ArgumentNullException">viewName</exception>
+		/// <exception cref="System.ArgumentException">viewName</exception>
+		public async void Navigate( string viewName, XParameters parameters )
 		{
-			NavigationSnapshot snapshot = snapshotId as NavigationSnapshot;
+			var context = new NavigationContext { ViewName = viewName, Parameters = parameters };
+
+			foreach( var handler in _navigationHandlers )
+			{
+				if( await handler.HandleNavigation( context ) )
+				{
+					break;
+				}
+			}
+
+			if( context.Cancel )
+			{
+				return;
+			}
+
+			ViewDescriptor descriptor;
+
+			if( !_views.TryGetValue( context.ViewName, out descriptor ) )
+			{
+				throw new ViewNavigationException( String.Format( "View '{0}' is not registered.", context.ViewName ) );
+			}
+
+			var uri = new Uri( string.Format( "/{0}{1}", descriptor.Path, context.Parameters != null ? "?" + string.Join( "&", context.Parameters.Select( p => p.Key + "=" + ParametersSerializer.EncodeValue( p.Value ) ) ) : string.Empty ), UriKind.Relative );
+
+			if( context.DisplaceCurrentView )
+			{
+				_removeLastJournalEntry = true;
+			}
+
+			((PhoneApplication) Application.Current).RootFrame.Navigate( uri );
+		}
+
+		public bool RollbackSnapshot( object snapshotId, string viewName, XParameters parameters )
+		{
+			var snapshot = snapshotId as NavigationSnapshot;
 
 			if( snapshot == null )
 			{
-				throw new ArgumentException( "Invalid snapshot.", "snapshotId" );
+				throw new ArgumentException( "Snapshot with provided ID is not found.", "snapshotId" );
 			}
 
 			// Rewind journal
-			PhoneApplication app = (PhoneApplication) Application.Current;
-			int numberOfEntriesToRemove = 0;
-			bool sourceUriIsFoundInBackStack = false;
+			var app = (PhoneApplication) Application.Current;
+			var numberOfEntriesToRemove = 0;
+			var sourceUriIsFoundInBackStack = false;
 
 			foreach( var entry in app.RootFrame.BackStack )
 			{
@@ -203,7 +203,7 @@ namespace Digillect.Mvvm.Services
 			{
 				while( numberOfEntriesToRemove-- > 0 )
 				{
-					JournalEntry entry = app.RootFrame.RemoveBackEntry();
+					var entry = app.RootFrame.RemoveBackEntry();
 
 					ProcessSnapshots( entry.Source );
 				}
@@ -225,10 +225,10 @@ namespace Digillect.Mvvm.Services
 		}
 		#endregion
 
-		#region Event handlers
+		#region Miscellaneous
 		private void RootFrame_Navigated( object sender, NavigationEventArgs e )
 		{
-			PhoneApplication app = (PhoneApplication) Application.Current;
+			var app = (PhoneApplication) Application.Current;
 
 			if( !_initialized )
 			{
@@ -248,7 +248,6 @@ namespace Digillect.Mvvm.Services
 				ProcessSnapshots( e.Uri );
 			}
 		}
-		#endregion
 
 		private void ProcessSnapshots( Uri uri )
 		{
@@ -270,7 +269,7 @@ namespace Digillect.Mvvm.Services
 
 		private void CompleteInitialization( NavigationEventArgs e )
 		{
-			PhoneApplication app = (PhoneApplication) Application.Current;
+			var app = (PhoneApplication) Application.Current;
 
 			_initialized = true;
 
@@ -285,6 +284,7 @@ namespace Digillect.Mvvm.Services
 				}
 			}
 		}
+		#endregion
 
 		#region Nested type: NavigationSnapshot
 		private class NavigationSnapshot
