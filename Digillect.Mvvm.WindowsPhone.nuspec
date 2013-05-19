@@ -14,11 +14,11 @@
 		<dependencies>
 			<group targetFramework="wp71">
 				<dependency id="Digillect.ObjectModel" version="4.1.0-dev-00006"/>
-				<dependency id="Digillect.Mvvm" version="2.1.0-dev-00006"/>
+				<dependency id="Digillect.Mvvm" version="2.1.0-dev-00007"/>
 			</group>
 			<group targetFramework="wp80">
 				<dependency id="Digillect.ObjectModel" version="4.1.0-dev-00006"/>
-				<dependency id="Digillect.Mvvm" version="2.1.0-dev-00006"/>
+				<dependency id="Digillect.Mvvm" version="2.1.0-dev-00007"/>
 			</group>
 		</dependencies>
 		<references>
