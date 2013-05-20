@@ -43,7 +43,7 @@ namespace Digillect.Mvvm.Services
 		/// <value>
 		///     The initial authentication view parameters.
 		/// </value>
-		Parameters AuthenticationViewParameters { get; }
+		XParameters AuthenticationViewParameters { get; }
 		#endregion
 
 		/// <summary>

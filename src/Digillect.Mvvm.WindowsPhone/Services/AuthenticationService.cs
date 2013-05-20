@@ -64,32 +64,35 @@ namespace Digillect.Mvvm.Services
 
 			foreach( var type in viewTypes )
 			{
-				ViewAttribute viewAttribute = type.GetCustomAttributes( typeof( ViewAttribute ), true ).Cast<ViewAttribute>().First();
-				string viewName = viewAttribute.Name ?? type.Name;
+				var viewAttribute = type.GetCustomAttributes( typeof( ViewAttribute ), true ).Cast<ViewAttribute>().First();
+				var viewName = viewAttribute.Name ?? type.Name;
 
-				ViewDescriptor descriptor = new ViewDescriptor
-												{
-													Name = viewName,
-													Type = type,
-													RequiresAuthentication = type.GetCustomAttributes( typeof( ViewRequiresAuthenticationAttribute ), false ).Any(),
-													PartOfAuthentication = type.GetCustomAttributes( typeof( ViewIsPartOfAuthenticationFlowAttribute ), false ).Any()
-												};
+				var descriptor = new ViewDescriptor
+					{
+						Name = viewName,
+						Type = type,
+						RequiresAuthentication = type.GetCustomAttributes( typeof( ViewRequiresAuthenticationAttribute ), false ).Any(),
+						PartOfAuthentication = type.GetCustomAttributes( typeof( ViewIsPartOfAuthenticationFlowAttribute ), false ).Any()
+					};
 
 				_views.Add( viewName, descriptor );
 			}
 		}
 		#endregion
 
+		#region Internal methods
 		internal void SetNavigationService( IWindowsPhoneNavigationService navigationService )
 		{
 			_navigationService = navigationService;
 		}
+		#endregion
 
+		#region Miscellaneous
 		private void CancelAuthenticationAndRollbackHistory()
 		{
 			if( _snapshotId != null )
 			{
-				object snapshotId = _snapshotId;
+				var snapshotId = _snapshotId;
 
 				_snapshotId = null;
 				_targetContext = null;
@@ -104,11 +107,56 @@ namespace Digillect.Mvvm.Services
 			_targetContext = null;
 		}
 
+		private async Task StartAuthentication( string initialViewName, XParameters parameters, Action performWhenAuthenticated )
+		{
+			if( _authenticationServiceContext != null )
+			{
+				var authenticated = await _authenticationServiceContext.IsAuthenticated();
+
+				if( !authenticated )
+				{
+					Action<object> guard = NavigationGuard;
+
+					if( performWhenAuthenticated != null )
+					{
+						guard = async o =>
+						{
+							NavigationGuard( o );
+
+							if( await _authenticationServiceContext.IsAuthenticated() )
+							{
+								performWhenAuthenticated();
+							}
+						};
+					}
+
+					_targetContext = null;
+					_snapshotId = _navigationService.CreateSnapshot( guard );
+
+					if( string.IsNullOrEmpty( initialViewName ) )
+					{
+						initialViewName = _authenticationServiceContext.AuthenticationViewName;
+						parameters = _authenticationServiceContext.AuthenticationViewParameters;
+					}
+
+					_navigationService.Navigate( initialViewName, parameters );
+				}
+				else
+				{
+					if( performWhenAuthenticated != null )
+					{
+						performWhenAuthenticated();
+					}
+				}
+			}
+		}
+		#endregion
+
 		#region Implementation of INavigationHandler
 		public async Task<bool> HandleNavigation( NavigationContext context )
 		{
 			ViewDescriptor descriptor;
-			bool result = false;
+			var result = false;
 
 			if( _authenticationServiceContext == null || !_views.TryGetValue( context.ViewName, out descriptor ) )
 			{
@@ -129,7 +177,7 @@ namespace Digillect.Mvvm.Services
 			{
 				if( descriptor.RequiresAuthentication )
 				{
-					bool authenticated = await _authenticationServiceContext.IsAuthenticated();
+					var authenticated = await _authenticationServiceContext.IsAuthenticated();
 
 					if( !authenticated )
 					{
@@ -174,68 +222,14 @@ namespace Digillect.Mvvm.Services
 		}
 
 		/// <summary>
-		///     Starts the authentication.
-		/// </summary>
-		/// <param name="initialViewName">Name of the initial view in the authentication flow.</param>
-		/// <param name="parameters">Parameters for the initial view.</param>
-		public Task StartAuthentication( string initialViewName, Parameters parameters )
-		{
-			return StartAuthentication( initialViewName, parameters, null );
-		}
-
-		private async Task StartAuthentication( string initialViewName, Parameters parameters, Action performWhenAuthenticated )
-		{
-			if( _authenticationServiceContext != null )
-			{
-				bool authenticated = await _authenticationServiceContext.IsAuthenticated();
-
-				if( !authenticated )
-				{
-					Action<object> guard = NavigationGuard;
-
-					if( performWhenAuthenticated != null )
-					{
-						guard = async o =>
-						{
-							NavigationGuard( o );
-
-							if( await _authenticationServiceContext.IsAuthenticated() )
-							{
-								performWhenAuthenticated();
-							}
-						};
-					}
-
-					_targetContext = null;
-					_snapshotId = _navigationService.CreateSnapshot( guard );
-
-					if( string.IsNullOrEmpty( initialViewName ) )
-					{
-						initialViewName = _authenticationServiceContext.AuthenticationViewName;
-						parameters = _authenticationServiceContext.AuthenticationViewParameters;
-					}
-
-					_navigationService.Navigate( initialViewName, parameters );
-				}
-				else
-				{
-					if( performWhenAuthenticated != null )
-					{
-						performWhenAuthenticated();
-					}
-				}
-			}
-		}
-
-		/// <summary>
 		///     Completes the authentication.
 		/// </summary>
 		public void CompleteAuthentication()
 		{
 			if( _snapshotId != null )
 			{
-				object snapshotId = _snapshotId;
-				NavigationContext targetContext = _targetContext;
+				var snapshotId = _snapshotId;
+				var targetContext = _targetContext;
 
 				_snapshotId = null;
 				_targetContext = null;
@@ -257,6 +251,16 @@ namespace Digillect.Mvvm.Services
 		public void CancelAuthentication()
 		{
 			CancelAuthenticationAndRollbackHistory();
+		}
+
+		/// <summary>
+		///     Starts the authentication.
+		/// </summary>
+		/// <param name="initialViewName">Name of the initial view in the authentication flow.</param>
+		/// <param name="parameters">Parameters for the initial view.</param>
+		public Task StartAuthentication( string initialViewName, XParameters parameters )
+		{
+			return StartAuthentication( initialViewName, parameters, null );
 		}
 		#endregion
 

@@ -46,8 +46,8 @@ using System.Runtime.InteropServices;
 internal static class AssemblyInfo
 {
 	public const string Major = "2";
-	public const string Minor = "0";
-	public const string Revision = "1";
+	public const string Minor = "1";
+	public const string Revision = "0";
 	public const string BuildNumber = "0";
 	public const string Suffix = "";
 

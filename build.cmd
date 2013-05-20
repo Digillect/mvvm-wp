@@ -2,11 +2,11 @@
 
 setlocal enableextensions
 set PATH=%~dp0\tools;%PATH%
-set BuildTargets=%~dp0\packages\Digillect.Build.Tasks.1.2.0\tools\Build.targets
+set BuildTargets=%~dp0\packages\Digillect.Build.Tools.1.2.0\tools\Build.targets
 set EnableNuGetPackageRestore=true
 
 if not exist "%BuildTargets%" (
-	nuget.exe install -o "%~dp0\packages" "%~dp0\packages.config"
+	nuget.exe install -o "%~dp0\packages" "%~dp0\.nuget\packages.config"
 )
 
 if not errorlevel 1 (

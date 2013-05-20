@@ -171,14 +171,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac">
-      <HintPath>..\..\packages\Autofac.3.0.1\lib\portable-win+net40+sl50+wp8\Autofac.dll</HintPath>
+      <HintPath>..\..\packages\Autofac.3.0.2\lib\portable-win+net40+sl50+wp8\Autofac.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Digillect.ObjectModel">
-      <HintPath>..\..\packages\Digillect.ObjectModel.4.0.0\lib\portable-net45+wp8+win8\Digillect.ObjectModel.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.ObjectModel.4.1.0\lib\portable-net45+wp8+win8\Digillect.ObjectModel.dll</HintPath>
     </Reference>
     <Reference Include="Digillect.Mvvm">
-      <HintPath>..\..\packages\Digillect.Mvvm.2.0.0\lib\portable-net45+wp8+win8\Digillect.Mvvm.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.Mvvm.2.1.0\lib\portable-net45+wp8+win8\Digillect.Mvvm.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -200,6 +200,7 @@
     <Compile Include="Services\NavigationContext.cs" />
     <Compile Include="Services\NavigationService.cs" />
     <Compile Include="Services\ParametersSerializer.cs" />
+    <Compile Include="Services\ViewNavigationException.cs" />
     <Compile Include="Services\WindowsPhoneModule.cs" />
     <Compile Include="Services\IPageDecorator.cs" />
     <Compile Include="UI\DataLoadReason.cs" />
@@ -212,6 +213,7 @@
     <Compile Include="Services\NetworkAvailabilityService.cs" />
     <Compile Include="UI\ViewIsPartOfAuthenticationFlowAttribute.cs" />
     <Compile Include="UI\ViewModelPage.cs" />
+    <Compile Include="UI\ViewParameterException.cs" />
     <Compile Include="UI\ViewPathAttribute.cs" />
     <Compile Include="UI\ViewRequiresAuthenticationAttribute.cs" />
   </ItemGroup>
@@ -226,6 +228,8 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <ProjectExtensions />
+  <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.5\tools\Microsoft.Bcl.Build.targets" />
+  <Import Project="..\..\tools\build\Digillect.CodeContracts.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -233,10 +237,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <PropertyGroup>
-    <CompileDependsOn>$(CompileDependsOn);CheckForCodeContracts</CompileDependsOn>
-  </PropertyGroup>
-  <Target Name="CheckForCodeContracts" Condition=" '$(CodeContractsImported)' != 'true' ">
-    <Error Text="Project requires Code Contracts http://msdn.microsoft.com/en-us/devlabs/dd491992.aspx" />
-  </Target>
 </Project>

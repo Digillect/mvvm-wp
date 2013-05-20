@@ -78,6 +78,6 @@ namespace Digillect.Mvvm.Services
 		/// <returns>
 		///     <c>true</c> if rollback was successful; otherwise <c>false</c>.
 		/// </returns>
-		bool RollbackSnapshot( object snapshotId, string viewName, Parameters parameters );
+		bool RollbackSnapshot( object snapshotId, string viewName, XParameters parameters );
 	}
 }

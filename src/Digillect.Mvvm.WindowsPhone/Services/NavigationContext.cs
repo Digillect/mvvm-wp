@@ -41,7 +41,7 @@ namespace Digillect.Mvvm.Services
 		/// <value>
 		///     The parameters.
 		/// </value>
-		public Parameters Parameters { get; set; }
+		public XParameters Parameters { get; set; }
 
 		/// <summary>
 		///     Gets or sets a value indicating whether the navigation operation with this context should be cancelled.
