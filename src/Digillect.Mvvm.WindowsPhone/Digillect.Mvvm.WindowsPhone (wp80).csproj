@@ -178,7 +178,7 @@
       <HintPath>..\..\packages\Digillect.ObjectModel.4.1.0\lib\portable-net45+wp8+win8\Digillect.ObjectModel.dll</HintPath>
     </Reference>
     <Reference Include="Digillect.Mvvm">
-      <HintPath>..\..\packages\Digillect.Mvvm.2.1.0\lib\portable-net45+wp8+win8\Digillect.Mvvm.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.Mvvm.2.2.0\lib\portable-net45+win8+wp8\Digillect.Mvvm.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -193,6 +193,7 @@
     <Compile Include="Services\INavigationHandlerContract.cs" />
     <Compile Include="Services\IPageDecorationServiceContract.cs" />
     <Compile Include="Services\IPageDecoratorContract.cs" />
+    <Compile Include="Services\ISerializableParameter.cs" />
     <Compile Include="Services\IViewDiscoveryService.cs" />
     <Compile Include="Services\IViewDiscoveryServiceContract.cs" />
     <Compile Include="Services\IWindowsPhoneNavigationService.cs" />

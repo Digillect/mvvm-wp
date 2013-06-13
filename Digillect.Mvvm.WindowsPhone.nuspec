@@ -14,7 +14,7 @@
 		<dependencies>
 			<group>
 				<dependency id="Digillect.ObjectModel" version="4.1.0"/>
-				<dependency id="Digillect.Mvvm" version="2.1.0"/>
+				<dependency id="Digillect.Mvvm" version="2.2.0"/>
 			</group>
 		</dependencies>
 		<references>
