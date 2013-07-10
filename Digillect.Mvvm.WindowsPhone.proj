@@ -13,7 +13,7 @@
 
 	<ItemGroup>
 		<LibWP71 Include="$(BuildPath)\wp71\**\Digillect.Mvvm.WindowsPhone.*" Exclude="$(ExcludeList)"/>
-		<LibWP80 Include="$(BuildPath)\wp80\**\Digillect.Mvvm.WindowsPhone.*" Exclude="$(ExcludeList)"/>
+		<LibWP8 Include="$(BuildPath)\wp80\**\Digillect.Mvvm.WindowsPhone.*" Exclude="$(ExcludeList)"/>
 	</ItemGroup>
 
 	<Import Project="packages\Digillect.Build.Tools.$(BuildToolsVersion)\tools\NuGet.Packaging.targets"/>

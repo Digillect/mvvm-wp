@@ -21,6 +21,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 
 using Digillect.Runtime.Serialization;
 
@@ -43,16 +44,20 @@ namespace Digillect.Mvvm.Services
 				return null;
 			}
 
-			Type valueType = value.GetType();
+			var valueType = value.GetType();
 			string formattedValue;
 
-			if( valueType == typeof( DateTime ) )
+			if( valueType.GetInterfaces().Contains( typeof( ISerializableParameter ) ) )
 			{
-				formattedValue = ((DateTime) value).ToString( "o", DateTimeFormatInfo.InvariantInfo );
+				formattedValue = ((ISerializableParameter) value).SerializeToString();
 			}
 			else
 			{
-				if( valueType == typeof( DateTimeOffset ) )
+				if( valueType == typeof( DateTime ) )
+				{
+					formattedValue = ((DateTime) value).ToString( "o", DateTimeFormatInfo.InvariantInfo );
+				}
+				else if( valueType == typeof( DateTimeOffset ) )
 				{
 					formattedValue = ((DateTimeOffset) value).ToString( "o", DateTimeFormatInfo.InvariantInfo );
 				}
@@ -60,13 +65,17 @@ namespace Digillect.Mvvm.Services
 				{
 					formattedValue = XKeySerializer.Serialize( (XKey) value );
 				}
+				else if( valueType.IsEnum )
+				{
+					formattedValue = ((int) value).ToString( CultureInfo.InvariantCulture );
+				}
 				else
 				{
 					formattedValue = (string) Convert.ChangeType( value, typeof( string ), CultureInfo.InvariantCulture );
 				}
 			}
 
-			return Uri.EscapeDataString( formattedValue );
+			return formattedValue == null ? null : Uri.EscapeDataString( formattedValue );
 		}
 
 		/// <summary>
@@ -82,6 +91,15 @@ namespace Digillect.Mvvm.Services
 				return stringValue;
 			}
 
+			if( targetType.GetInterfaces().Contains( typeof( ISerializableParameter ) ) )
+			{
+				var target = (ISerializableParameter) Activator.CreateInstance( targetType );
+
+				target.DeserializeFromString( stringValue );
+
+				return target;
+			}
+
 			if( targetType == typeof( DateTime ) )
 			{
 				return DateTime.ParseExact( stringValue, "o", DateTimeFormatInfo.InvariantInfo );
@@ -95,6 +113,11 @@ namespace Digillect.Mvvm.Services
 			if( targetType == typeof( XKey ) )
 			{
 				return XKeySerializer.Deserialize( stringValue );
+			}
+
+			if( targetType.IsEnum )
+			{
+				return Enum.ToObject( targetType, int.Parse( stringValue, CultureInfo.InvariantCulture ) );
 			}
 
 			return Convert.ChangeType( stringValue, targetType, CultureInfo.InvariantCulture );
