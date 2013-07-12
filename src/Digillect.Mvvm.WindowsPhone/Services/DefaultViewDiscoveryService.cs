@@ -31,7 +31,7 @@ namespace Digillect.Mvvm.Services
 	/// <summary>
 	///     Provides framework with information about view types based on current Application class.
 	/// </summary>
-	public class DefaultViewDiscoveryService : IViewDiscoveryService
+	public sealed class DefaultViewDiscoveryService : IViewDiscoveryService
 	{
 		private readonly string _rootNamespace;
 		private readonly List<Type> _viewTypes;

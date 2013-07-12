@@ -170,8 +170,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Digillect.Mvvm">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Digillect.Mvvm.2.2.0\lib\wp71\Digillect.Mvvm.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.Mvvm.2.2.1\lib\wp71\Digillect.Mvvm.dll</HintPath>
     </Reference>
     <Reference Include="Digillect.ObjectModel">
       <HintPath>..\..\packages\Digillect.ObjectModel.4.1.0\lib\wp71\Digillect.ObjectModel.dll</HintPath>
