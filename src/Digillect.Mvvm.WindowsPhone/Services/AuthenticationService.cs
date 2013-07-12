@@ -30,7 +30,12 @@ using Digillect.Mvvm.UI;
 
 namespace Digillect.Mvvm.Services
 {
-	internal class AuthenticationService : IAuthenticationService, INavigationHandler, IStartable
+#if WINDOWS_PHONE_71
+	public
+#else
+	internal
+#endif
+	sealed class AuthenticationService : IAuthenticationService, INavigationHandler, IStartable
 	{
 		private readonly IAuthenticationServiceContext _authenticationServiceContext;
 		private readonly IViewDiscoveryService _viewDiscoveryService;

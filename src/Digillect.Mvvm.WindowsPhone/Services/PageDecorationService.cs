@@ -31,7 +31,12 @@ namespace Digillect.Mvvm.Services
 	/// <summary>
 	///     Default implementation of <see cref="IPageDecorationService" />.
 	/// </summary>
-	internal sealed class PageDecorationService : IPageDecorationService
+#if WINDOWS_PHONE_71
+	public
+#else
+	internal
+#endif
+	sealed class PageDecorationService : IPageDecorationService
 	{
 		#region Add/Remove Page decoration
 		/// <summary>

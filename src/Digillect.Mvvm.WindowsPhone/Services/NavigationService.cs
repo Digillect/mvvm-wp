@@ -34,7 +34,12 @@ namespace Digillect.Mvvm.Services
 	/// <summary>
 	///     Windows phone implementation of <see cref="Digillect.Mvvm.Services.INavigationService" />
 	/// </summary>
-	internal sealed class NavigationService : IWindowsPhoneNavigationService, IStartable
+#if WINDOWS_PHONE_71
+	public
+#else
+	internal
+#endif
+	sealed class NavigationService : IWindowsPhoneNavigationService, IStartable
 	{
 		private readonly INavigationHandler[] _navigationHandlers;
 		private readonly List<NavigationSnapshot> _navigationSnapshots = new List<NavigationSnapshot>();
