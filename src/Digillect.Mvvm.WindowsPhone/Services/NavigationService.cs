@@ -47,8 +47,8 @@ namespace Digillect.Mvvm.Services
 
 		private readonly Dictionary<string, ViewDescriptor> _views = new Dictionary<string, ViewDescriptor>( StringComparer.InvariantCultureIgnoreCase );
 
-		private bool _initialized;
 		private bool _removeLastJournalEntry;
+		private bool _navigationIsInProgress;
 
 		#region Constructors/Disposer
 		/// <summary>
@@ -92,6 +92,8 @@ namespace Digillect.Mvvm.Services
 			var app = (PhoneApplication) Application.Current;
 
 			app.RootFrame.Navigated += RootFrame_Navigated;
+			app.RootFrame.NavigationFailed += RootFrame_NavigationFailed;
+			app.RootFrame.NavigationStopped += RootFrame_NavigationStopped;
 		}
 		#endregion
 
@@ -110,7 +112,12 @@ namespace Digillect.Mvvm.Services
 		/// </summary>
 		public void GoBack()
 		{
-			((PhoneApplication) Application.Current).RootFrame.GoBack();
+			if( !_navigationIsInProgress )
+			{
+				_navigationIsInProgress = true;
+
+				((PhoneApplication) Application.Current).RootFrame.GoBack();
+			}
 		}
 
 		public object CreateSnapshot()
@@ -147,6 +154,11 @@ namespace Digillect.Mvvm.Services
 		/// <exception cref="System.ArgumentException">viewName</exception>
 		public async void Navigate( string viewName, XParameters parameters )
 		{
+			if( _navigationIsInProgress )
+			{
+				return;
+			}
+
 			var context = new NavigationContext { ViewName = viewName, Parameters = parameters };
 
 			foreach( var handler in _navigationHandlers )
@@ -220,7 +232,7 @@ namespace Digillect.Mvvm.Services
 				}
 				else
 				{
-					app.RootFrame.GoBack();
+					GoBack();
 				}
 
 				return true;
@@ -235,10 +247,7 @@ namespace Digillect.Mvvm.Services
 		{
 			var app = (PhoneApplication) Application.Current;
 
-			if( !_initialized )
-			{
-				CompleteInitialization( e );
-			}
+			_navigationIsInProgress = true;
 
 			if( e.NavigationMode == NavigationMode.New )
 			{
@@ -252,6 +261,16 @@ namespace Digillect.Mvvm.Services
 			{
 				ProcessSnapshots( e.Uri );
 			}
+		}
+
+		private void RootFrame_NavigationFailed( object sender, NavigationFailedEventArgs e )
+		{
+			_navigationIsInProgress = false;
+		}
+
+		private void RootFrame_NavigationStopped( object sender, NavigationEventArgs e )
+		{
+			_navigationIsInProgress = false;
 		}
 
 		private void ProcessSnapshots( Uri uri )
@@ -268,24 +287,6 @@ namespace Digillect.Mvvm.Services
 					}
 
 					_navigationSnapshots.Remove( snapshot );
-				}
-			}
-		}
-
-		private void CompleteInitialization( NavigationEventArgs e )
-		{
-			var app = (PhoneApplication) Application.Current;
-
-			_initialized = true;
-
-#if WINDOWS_PHONE_7
-			if( e.NavigationMode == NavigationMode.New || e.NavigationMode == NavigationMode.Refresh )
-#else
-			if( e.NavigationMode == NavigationMode.Reset )
-#endif
-			{
-				while( app.RootFrame.RemoveBackEntry() != null )
-				{
 				}
 			}
 		}
