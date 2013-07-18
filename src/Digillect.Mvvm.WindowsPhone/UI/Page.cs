@@ -119,7 +119,7 @@ namespace Digillect.Mvvm.UI
 		///     Called when a page is no longer the active page in a frame.
 		/// </summary>
 		/// <param name="e">An object that contains the event data.</param>
-		protected override void OnNavigatedFrom( NavigationEventArgs e )
+		protected override void OnNavigatingFrom( NavigatingCancelEventArgs e )
 		{
 			if( e.NavigationMode == NavigationMode.Back )
 			{
@@ -127,7 +127,7 @@ namespace Digillect.Mvvm.UI
 
 				if( _scope != null )
 				{
-					IPageDecorationService pageDecorationService = null;
+					IPageDecorationService pageDecorationService;
 
 					if( Scope.TryResolve( out pageDecorationService ) )
 					{
@@ -144,7 +144,7 @@ namespace Digillect.Mvvm.UI
 				OnPageAsleep();
 			}
 
-			base.OnNavigatedFrom( e );
+			base.OnNavigatingFrom( e );
 		}
 		#endregion
 
