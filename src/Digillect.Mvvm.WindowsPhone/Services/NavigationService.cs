@@ -247,7 +247,7 @@ namespace Digillect.Mvvm.Services
 		{
 			var app = (PhoneApplication) Application.Current;
 
-			_navigationIsInProgress = true;
+			_navigationIsInProgress = false;
 
 			if( e.NavigationMode == NavigationMode.New )
 			{
