@@ -14,6 +14,7 @@
 	<ItemGroup>
 		<ProjectReference Include="src\Digillect.Mvvm.WindowsPhone\Digillect.Mvvm.WindowsPhone (wp71).csproj"/>
 		<ProjectReference Include="src\Digillect.Mvvm.WindowsPhone\Digillect.Mvvm.WindowsPhone (wp80).csproj"/>
+		<ProjectReference Include="src\Digillect.Mvvm.WindowsPhone\Digillect.Mvvm.WindowsPhone (wp81).csproj"/>
 	</ItemGroup>
 
 	<ItemGroup>
