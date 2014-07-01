@@ -165,14 +165,15 @@
     <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac">
+    <Reference Include="Autofac, Version=2.6.3.862, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Autofac.2.6.3.862\lib\SL4-WindowsPhone71\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="Digillect.Mvvm">
-      <HintPath>..\..\packages\Digillect.Mvvm.2.2.2\lib\wp71\Digillect.Mvvm.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.Mvvm.2.2.3\lib\wp71\Digillect.Mvvm.dll</HintPath>
     </Reference>
     <Reference Include="Digillect.ObjectModel">
-      <HintPath>..\..\packages\Digillect.ObjectModel.4.1.1\lib\wp71\Digillect.ObjectModel.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.ObjectModel.4.1.2\lib\wp71\Digillect.ObjectModel.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Contracts">
       <HintPath>C:\Program Files (x86)\Microsoft\Contracts\PublicAssemblies\Silverlight3\Microsoft.Contracts.dll</HintPath>

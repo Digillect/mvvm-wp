@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="BuildAndPackage" InitialTargets="CheckForBuildTools" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
-		<BuildToolsVersion>1.2.4</BuildToolsVersion>
+		<BuildToolsVersion>1.2.5</BuildToolsVersion>
 		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 	</PropertyGroup>
 
@@ -14,7 +14,6 @@
 	<ItemGroup>
 		<ProjectReference Include="src\Digillect.Mvvm.WindowsPhone\Digillect.Mvvm.WindowsPhone (wp71).csproj"/>
 		<ProjectReference Include="src\Digillect.Mvvm.WindowsPhone\Digillect.Mvvm.WindowsPhone (wp80).csproj"/>
-		<ProjectReference Include="src\Digillect.Mvvm.WindowsPhone\Digillect.Mvvm.WindowsPhone (wp81).csproj"/>
 	</ItemGroup>
 
 	<ItemGroup>
