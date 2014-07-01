@@ -47,7 +47,7 @@ internal static class AssemblyInfo
 {
 	public const string Major = "2";
 	public const string Minor = "2";
-	public const string Revision = "5";
+	public const string Revision = "6";
 	public const string BuildNumber = "0";
 	public const string Suffix = "";
 
