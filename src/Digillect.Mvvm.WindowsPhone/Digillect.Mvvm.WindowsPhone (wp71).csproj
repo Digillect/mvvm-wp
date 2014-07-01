@@ -170,7 +170,7 @@
       <HintPath>..\..\packages\Autofac.2.6.3.862\lib\SL4-WindowsPhone71\Autofac.dll</HintPath>
     </Reference>
     <Reference Include="Digillect.Mvvm">
-      <HintPath>..\..\packages\Digillect.Mvvm.2.2.3\lib\wp71\Digillect.Mvvm.dll</HintPath>
+      <HintPath>..\..\packages\Digillect.Mvvm.2.2.4\lib\wp71\Digillect.Mvvm.dll</HintPath>
     </Reference>
     <Reference Include="Digillect.ObjectModel">
       <HintPath>..\..\packages\Digillect.ObjectModel.4.1.2\lib\wp71\Digillect.ObjectModel.dll</HintPath>
