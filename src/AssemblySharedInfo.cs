@@ -1,5 +1,5 @@
-﻿#region Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
-// Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
+﻿#region Copyright (c) 2011-2014 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
+// Copyright (c) 2011-2014 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
 // software and associated documentation files (the "Software"), to deal in the Software
@@ -33,7 +33,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany( "Actis Systems" )]
 [assembly: AssemblyProduct( "Windows Phone adaptor for Digillect� Model-View-ViewModel framework." )]
-[assembly: AssemblyCopyright( "� 2011-2012 Actis Systems. All rights reserved." )]
+[assembly: AssemblyCopyright( "� 2011-2014 Actis Systems. All rights reserved." )]
 [assembly: AssemblyTrademark( "Digillect is a registered trademark of Actis Systems." )]
 [assembly: AssemblyVersion( AssemblyInfo.Version )]
 [assembly: AssemblyFileVersion( AssemblyInfo.FileVersion )]
@@ -47,7 +47,7 @@ internal static class AssemblyInfo
 {
 	public const string Major = "2";
 	public const string Minor = "2";
-	public const string Revision = "3";
+	public const string Revision = "5";
 	public const string BuildNumber = "0";
 	public const string Suffix = "";
 

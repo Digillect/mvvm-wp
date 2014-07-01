@@ -2,18 +2,20 @@
 
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
-		<BuildToolsVersion>1.2.0</BuildToolsVersion>
+		<BuildToolsVersion>1.2.5</BuildToolsVersion>
 		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
 
 		<BuildPath>target\$(Configuration)\bin</BuildPath>
 		<OutputPath>target\$(Configuration)\packages</OutputPath>
-		<VersionAssembly>$(BuildPath)\wp80\Digillect.Mvvm.WindowsPhone.dll</VersionAssembly>
+		<VersionAssembly>$(BuildPath)\wp8+wp81+wpa81\Digillect.Mvvm.WindowsPhone.dll</VersionAssembly>
 		<ExcludeList>$(BuildPath)\**\*.xml.old;$(BuildPath)\**\*.noReferenceAssembly</ExcludeList>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<LibWP71 Include="$(BuildPath)\wp71\**\Digillect.Mvvm.WindowsPhone.*" Exclude="$(ExcludeList)"/>
-		<LibWP8 Include="$(BuildPath)\wp80\**\Digillect.Mvvm.WindowsPhone.*" Exclude="$(ExcludeList)"/>
+		<LibPortable Include="$(BuildPath)\wp8+wp81+wpa81\**\Digillect.Mvvm.WindowsPhone.*" Exclude="$(ExcludeList)">
+			<Profile>wp8+wp81+wpa81</Profile>
+		</LibPortable>
 	</ItemGroup>
 
 	<Import Project="packages\Digillect.Build.Tools.$(BuildToolsVersion)\tools\NuGet.Packaging.targets"/>

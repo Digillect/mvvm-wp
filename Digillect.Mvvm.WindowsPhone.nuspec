@@ -9,12 +9,12 @@
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Windows Phone adaptor for Digillect Model-View-ViewModel Framework</description>
 		<releaseNotes>Initial release.</releaseNotes>
-		<copyright>Copyright © 2002-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman). All rights reserved.</copyright>
-		<tags>digillect mvvm windowsphone wp8 wp71 wp75</tags>
+		<copyright>Copyright © 2002-2014 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman). All rights reserved.</copyright>
+		<tags>digillect mvvm windowsphone wp81 wp8 wp71 wp75</tags>
 		<dependencies>
 			<group>
-				<dependency id="Digillect.ObjectModel" version="4.1.0"/>
-				<dependency id="Digillect.Mvvm" version="2.2.0"/>
+				<dependency id="Digillect.ObjectModel" version="4.1.2"/>
+				<dependency id="Digillect.Mvvm" version="2.2.3"/>
 			</group>
 		</dependencies>
 		<references>
