@@ -68,6 +68,7 @@ namespace Digillect.Mvvm.Services
 		public abstract void Navigate( string viewName );
 		public abstract void Navigate( string viewName, XParameters parameters );
 		public abstract void GoBack();
+		public abstract void GoBack( string viewName );
 		#endregion
 	}
 }
