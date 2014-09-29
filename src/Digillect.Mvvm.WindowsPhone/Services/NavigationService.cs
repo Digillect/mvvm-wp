@@ -120,6 +120,43 @@ namespace Digillect.Mvvm.Services
 			}
 		}
 
+		/// <summary>
+		///     Navigates back to the specified view or first view if not found.
+		/// </summary>
+		/// <param name="viewName">Name of the view.</param>
+		public void GoBack( string viewName )
+		{
+			if( !_navigationIsInProgress )
+			{
+				_navigationIsInProgress = true;
+
+				var backStacks = ((PhoneApplication) Application.Current).RootFrame.BackStack;
+				var journalEntries = backStacks as JournalEntry[] ?? backStacks.ToArray();
+
+				ViewDescriptor descriptor;
+
+				if( !_views.TryGetValue( viewName, out descriptor ) )
+				{
+					throw new ViewNavigationException( String.Format( "View '{0}' is not registered.", viewName ) );
+				}
+
+				for( int i = 0; i < journalEntries.Count() - 1; i++ )
+				{
+					if( !journalEntries[i].Source.ToString().Contains( descriptor.Path ) )
+					{
+						((PhoneApplication) Application.Current).RootFrame.RemoveBackEntry();
+					}
+					else
+					{
+						break;
+					}
+				}
+
+				_navigationIsInProgress = false;
+				GoBack();
+			}
+		}
+
 		public object CreateSnapshot()
 		{
 			return CreateSnapshot( null, null );
