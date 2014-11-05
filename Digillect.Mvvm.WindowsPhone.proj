@@ -16,6 +16,9 @@
 		<LibPortable Include="$(BuildPath)\wp8+wp81+wpa81\**\Digillect.Mvvm.WindowsPhone.*" Exclude="$(ExcludeList)">
 			<Profile>wp8+wp81+wpa81</Profile>
 		</LibPortable>
+		<LibWP80 Include="$(BuildPath)\wp8+wp81+wpa81\**\Digillect.Mvvm.WindowsPhone.*" Exclude="$(ExcludeList)">
+			<Profile>wp8+wp81+wpa81</Profile>
+		</LibWP80>
 	</ItemGroup>
 
 	<Import Project="packages\Digillect.Build.Tools.$(BuildToolsVersion)\tools\NuGet.Packaging.targets"/>
