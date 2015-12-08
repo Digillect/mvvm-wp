@@ -1,30 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="BuildAndPackage" InitialTargets="CheckForBuildTools" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" InitialTargets="_CheckRequirements" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
-		<BuildToolsVersion>1.2.5</BuildToolsVersion>
-		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+		<BuildToolsVersion>2.0.0-beta</BuildToolsVersion>
+		<Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+		<VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+		<NuGetVerbosity Condition="'$(NuGetVerbosity)' == ''">quiet</NuGetVerbosity>
+		<MSBuildCommunityTasksPath>$(MSBuildProjectDirectory)\packages\MSBuildTasks.1.4.0.128\tools</MSBuildCommunityTasksPath>
 	</PropertyGroup>
 
-	<Target Name="CheckForBuildTools" Condition="!Exists('packages\Digillect.Build.Tools.$(BuildToolsVersion)\tools\Build.targets')">
-		<Error Text="Project requires Digillect.Build.Tools package to run."/>
-	</Target>
-	
-	<Import Project="packages\Digillect.Build.Tools.$(BuildToolsVersion)\tools\Build.targets" Condition="Exists('packages\Digillect.Build.Tools.$(BuildToolsVersion)\tools\Build.targets')"/>
+	<Import Project="$(MSBuildProjectDirectory)\packages\Digillect.Build.Tools.$(BuildToolsVersion)\build\Digillect.Build.Common.props" Condition="Exists('$(MSBuildProjectDirectory)\packages\Digillect.Build.Tools.$(BuildToolsVersion)\build\Digillect.Build.Common.props')" />
 
 	<ItemGroup>
-		<ProjectReference Include="src\Digillect.Mvvm.WindowsPhone\Digillect.Mvvm.WindowsPhone (wp71).csproj"/>
-		<ProjectReference Include="src\Digillect.Mvvm.WindowsPhone\Digillect.Mvvm.WindowsPhone (wp80).csproj"/>
+		<ProjectReference Include="$(MSBuildProjectDirectory)\src\Digillect.Mvvm.WindowsPhone\Digillect.Mvvm.WindowsPhone (wp71).csproj" />
+		<ProjectReference Include="$(MSBuildProjectDirectory)\src\Digillect.Mvvm.WindowsPhone\Digillect.Mvvm.WindowsPhone (wp80).csproj" />
+		<ProjectReference Include="$(MSBuildProjectDirectory)\Digillect.Mvvm.WindowsPhone.proj">
+			<AdditionalProperties>BuildToolsVersion=$(BuildToolsVersion);NuGetExecutable=$(NuGetExecutable);NuGetVerbosity=$(NuGetVerbosity)</AdditionalProperties>
+		</ProjectReference>
 	</ItemGroup>
 
-	<ItemGroup>
-		<PackagingProjectReference Include="Digillect.Mvvm.WindowsPhone.proj"/>
-	</ItemGroup>
+	<Import Project="$(MSBuildProjectDirectory)\packages\Digillect.Build.Tools.$(BuildToolsVersion)\build\Digillect.Build.Common.targets" Condition="Exists('$(MSBuildProjectDirectory)\packages\Digillect.Build.Tools.$(BuildToolsVersion)\build\Digillect.Build.Common.targets')" />
+	<Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets" Condition="Exists('$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets')" />
 
-	<Target Name="UpdateAssemblyVersion" Condition="'$(BuildNumber)' != ''">
-		<FileUpdate Files="src\AssemblySharedInfo.cs" Regex='BuildNumber = "\d+"' ReplacementText='BuildNumber = "$(BuildNumber)"'/>
+	<Target Name="_CheckRequirements">
+		<Error Condition="!Exists('$(MSBuildProjectDirectory)\packages\Digillect.Build.Tools.$(BuildToolsVersion)\build\Digillect.Build.Common.props')" Text="This project requires the Digillect.Build.Tools $(BuildToolsVersion) package." />
+		<Error Condition="!Exists('$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets')" Text="This project requires the MSBuildTasks package." />
 	</Target>
 
-	<Target Name="BeforeBuildOrRebuild" DependsOnTargets="UpdateAssemblyVersion"/>
+	<Target Name="BeforeBuild">
+		<FileUpdate Condition="'$(BuildNumber)' != ''" Encoding="utf-8" Files="$(MSBuildProjectDirectory)\src\AssemblySharedInfo.cs" Regex='(BuildNumber\s*=\s*)"\d+"' ReplacementText='$1"$(BuildNumber)"' WarnOnNoUpdate="true" />
+	</Target>
 
-	<Target Name="BuildAndPackage" DependsOnTargets="Build;Package"/>
+	<Target Name="AfterClean">
+		<ItemGroup>
+			<_DirectoriesToClean Include="$(MSBuildProjectDirectory)\target\" />
+		</ItemGroup>
+
+		<RemoveDir Directories="@(_DirectoriesToClean)" ContinueOnError="true" />
+	</Target>
 </Project>
